@@ -14,7 +14,7 @@ export async function GET(request: Request) {
           success: false,
           message: "Attendance date is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 
         ORDER BY e.employee_number
       `,
-      [date]
+      [date],
     );
 
     return NextResponse.json({
@@ -98,7 +98,7 @@ export async function GET(request: Request) {
         success: false,
         message: "Unable to load attendance.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -111,9 +111,7 @@ export async function POST(request: Request) {
 
     const date = String(body.date || "").trim();
 
-    const records = Array.isArray(body.records)
-      ? body.records
-      : [];
+    const records = Array.isArray(body.records) ? body.records : [];
 
     if (!date) {
       return NextResponse.json(
@@ -121,7 +119,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Attendance date is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -130,33 +128,19 @@ export async function POST(request: Request) {
     for (const record of records) {
       const employeeId = Number(record.employeeId);
 
-      const status = String(
-        record.status || "PRESENT"
-      ).toUpperCase();
+      const status = String(record.status || "PRESENT").toUpperCase();
 
-      const allowedStatuses = [
-        "PRESENT",
-        "ABSENT",
-        "LEAVE",
-        "SICK",
-        "HOLIDAY",
-      ];
+      const allowedStatuses = ["PRESENT", "ABSENT", "LEAVE", "SICK", "HOLIDAY"];
 
-      if (
-        !Number.isInteger(employeeId) ||
-        !allowedStatuses.includes(status)
-      ) {
+      if (!Number.isInteger(employeeId) || !allowedStatuses.includes(status)) {
         continue;
       }
 
-      const checkIn =
-        record.checkIn || null;
+      const checkIn = record.checkIn || null;
 
-      const checkOut =
-        record.checkOut || null;
+      const checkOut = record.checkOut || null;
 
-      const remarks =
-        String(record.remarks || "").trim() || null;
+      const remarks = String(record.remarks || "").trim() || null;
 
       await client.query(
         `
@@ -185,14 +169,7 @@ export async function POST(request: Request) {
             remarks = EXCLUDED.remarks,
             updated_at = NOW()
         `,
-        [
-          employeeId,
-          date,
-          status,
-          checkIn,
-          checkOut,
-          remarks,
-        ]
+        [employeeId, date, status, checkIn, checkOut, remarks],
       );
     }
 
@@ -211,7 +188,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Unable to save attendance.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   } finally {
     client.release();

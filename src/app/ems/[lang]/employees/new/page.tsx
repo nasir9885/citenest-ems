@@ -11,8 +11,7 @@ export default function AddEmployeePage() {
   const params = useParams();
   const router = useRouter();
 
-  const lang =
-    typeof params.lang === "string" ? params.lang : "en";
+  const lang = typeof params.lang === "string" ? params.lang : "en";
 
   const isArabic = lang === "ar";
   const t = isArabic ? ar : en;
@@ -20,9 +19,7 @@ export default function AddEmployeePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setSaving(true);
@@ -48,8 +45,7 @@ export default function AddEmployeePage() {
       basicSalary: formData.get("basicSalary"),
 
       bankName: formData.get("bankName"),
-      bankAccountNumber:
-        formData.get("bankAccountNumber"),
+      bankAccountNumber: formData.get("bankAccountNumber"),
 
       iban: formData.get("iban"),
 
@@ -57,16 +53,13 @@ export default function AddEmployeePage() {
     };
 
     try {
-      const response = await fetch(
-        "/api/ems/employees",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(employee),
-        }
-      );
+      const response = await fetch("/api/ems/employees", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(employee),
+      });
 
       const result = await response.json();
 
@@ -92,28 +85,19 @@ export default function AddEmployeePage() {
       <header className="ems-header">
         <div className="ems-container ems-nav">
           <div>
-            <Link
-              href={`/ems/${lang}`}
-              className="ems-brand"
-            >
+            <Link href={`/ems/${lang}`} className="ems-brand">
               CiteNest
             </Link>
 
-            <span className="ems-app-name">
-              {t.appName}
-            </span>
+            <span className="ems-app-name">{t.appName}</span>
           </div>
         </div>
       </header>
 
       <section className="ems-section">
         <div className="ems-container">
-
           <div className="ems-form-header">
-            <Link
-              href={`/ems/${lang}/employees`}
-              className="ems-back-link"
-            >
+            <Link href={`/ems/${lang}/employees`} className="ems-back-link">
               ← {t.employeeList}
             </Link>
 
@@ -121,42 +105,23 @@ export default function AddEmployeePage() {
           </div>
 
           <div className="ems-form-card">
+            {error && <div className="ems-error">{error}</div>}
 
-            {error && (
-              <div className="ems-error">
-                {error}
-              </div>
-            )}
-
-            <form
-              className="ems-form"
-              onSubmit={handleSubmit}
-            >
-
+            <form className="ems-form" onSubmit={handleSubmit}>
               <div className="ems-form-grid">
-
                 <label>
                   {t.employeeNumber} *
-                  <input
-                    name="employeeNumber"
-                    required
-                  />
+                  <input name="employeeNumber" required />
                 </label>
 
                 <label>
                   English Name *
-                  <input
-                    name="nameEn"
-                    required
-                  />
+                  <input name="nameEn" required />
                 </label>
 
                 <label>
                   الاسم بالعربية
-                  <input
-                    name="nameAr"
-                    dir="rtl"
-                  />
+                  <input name="nameAr" dir="rtl" />
                 </label>
 
                 <label>
@@ -166,18 +131,12 @@ export default function AddEmployeePage() {
 
                 <label>
                   المسمى الوظيفي بالعربية
-                  <input
-                    name="designationAr"
-                    dir="rtl"
-                  />
+                  <input name="designationAr" dir="rtl" />
                 </label>
 
                 <label>
                   {t.dateOfJoining}
-                  <input
-                    type="date"
-                    name="dateOfJoining"
-                  />
+                  <input type="date" name="dateOfJoining" />
                 </label>
 
                 <label>
@@ -218,20 +177,12 @@ export default function AddEmployeePage() {
 
                 <label>
                   {t.status}
-                  <select
-                    name="status"
-                    defaultValue="ACTIVE"
-                  >
-                    <option value="ACTIVE">
-                      {t.active}
-                    </option>
+                  <select name="status" defaultValue="ACTIVE">
+                    <option value="ACTIVE">{t.active}</option>
 
-                    <option value="INACTIVE">
-                      {t.inactive}
-                    </option>
+                    <option value="INACTIVE">{t.inactive}</option>
                   </select>
                 </label>
-
               </div>
 
               <div className="ems-form-actions">
@@ -247,12 +198,9 @@ export default function AddEmployeePage() {
                   className="primary-action"
                   disabled={saving}
                 >
-                  {saving
-                    ? t.saving
-                    : t.saveEmployee}
+                  {saving ? t.saving : t.saveEmployee}
                 </button>
               </div>
-
             </form>
           </div>
         </div>

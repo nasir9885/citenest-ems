@@ -20,7 +20,7 @@ export async function GET(request: Request) {
           success: false,
           message: "Valid month and year are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,15 +53,12 @@ export async function GET(request: Request) {
 
         ORDER BY e.employee_number
       `,
-      [month, year]
+      [month, year],
     );
 
     if (format === "csv") {
       const escapeCsv = (value: unknown) => {
-        const text =
-          value === null || value === undefined
-            ? ""
-            : String(value);
+        const text = value === null || value === undefined ? "" : String(value);
 
         return `"${text.replace(/"/g, '""')}"`;
       };
@@ -99,7 +96,7 @@ export async function GET(request: Request) {
             row.payment_status,
           ]
             .map(escapeCsv)
-            .join(",")
+            .join(","),
         ),
       ];
 
@@ -108,13 +105,11 @@ export async function GET(request: Request) {
       return new Response(csv, {
         status: 200,
         headers: {
-          "Content-Type":
-            "text/csv; charset=utf-8",
+          "Content-Type": "text/csv; charset=utf-8",
 
-          "Content-Disposition":
-            `attachment; filename="salary_bank_export_${year}_${String(
-              month
-            ).padStart(2, "0")}.csv"`,
+          "Content-Disposition": `attachment; filename="salary_bank_export_${year}_${String(
+            month,
+          ).padStart(2, "0")}.csv"`,
         },
       });
     }
@@ -124,18 +119,14 @@ export async function GET(request: Request) {
       records: result.rows,
     });
   } catch (error) {
-    console.error(
-      "Unable to load salary export:",
-      error
-    );
+    console.error("Unable to load salary export:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Unable to load bank salary export.",
+        message: "Unable to load bank salary export.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

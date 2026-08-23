@@ -17,7 +17,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Please complete all required fields.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
           ($1, $2, $3, $4, $5)
         RETURNING id, created_at
       `,
-      [name, email, mobile, organization || null, message]
+      [name, email, mobile, organization || null, message],
     );
 
     return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         message: "Thank you. Your enquiry has been submitted successfully.",
         enquiry: result.rows[0],
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Unable to save enquiry:", error);
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Unable to submit your enquiry. Please try again.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -68,7 +68,7 @@ export async function GET() {
           updated_at
         FROM enquiries
         ORDER BY created_at DESC
-      `
+      `,
     );
 
     return NextResponse.json({
@@ -83,7 +83,7 @@ export async function GET() {
         success: false,
         message: "Unable to load enquiries.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

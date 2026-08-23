@@ -23,8 +23,7 @@ type Employee = {
 export default function EmployeesPage() {
   const params = useParams();
 
-  const lang =
-    typeof params.lang === "string" ? params.lang : "en";
+  const lang = typeof params.lang === "string" ? params.lang : "en";
 
   const isArabic = lang === "ar";
   const t = isArabic ? ar : en;
@@ -70,19 +69,13 @@ export default function EmployeesPage() {
               CiteNest
             </Link>
 
-            <span className="ems-app-name">
-              {t.appName}
-            </span>
+            <span className="ems-app-name">{t.appName}</span>
           </div>
 
           <div className="ems-language-switch">
-            <Link href="/ems/en/employees">
-              English
-            </Link>
+            <Link href="/ems/en/employees">English</Link>
 
-            <Link href="/ems/ar/employees">
-              العربية
-            </Link>
+            <Link href="/ems/ar/employees">العربية</Link>
           </div>
         </div>
       </header>
@@ -91,10 +84,7 @@ export default function EmployeesPage() {
         <div className="ems-container">
           <div className="ems-page-toolbar">
             <div>
-              <Link
-                href={`/ems/${lang}`}
-                className="ems-back-link"
-              >
+              <Link href={`/ems/${lang}`} className="ems-back-link">
                 ← {t.backToDashboard}
               </Link>
 
@@ -109,22 +99,12 @@ export default function EmployeesPage() {
             </Link>
           </div>
 
-          {loading && (
-            <div className="ems-message">
-              {t.loading}
-            </div>
-          )}
+          {loading && <div className="ems-message">{t.loading}</div>}
 
-          {error && (
-            <div className="ems-error">
-              {error}
-            </div>
-          )}
+          {error && <div className="ems-error">{error}</div>}
 
           {!loading && !error && employees.length === 0 && (
-            <div className="ems-message">
-              {t.noEmployees}
-            </div>
+            <div className="ems-message">{t.noEmployees}</div>
           )}
 
           {!loading && !error && employees.length > 0 && (
@@ -147,9 +127,7 @@ export default function EmployeesPage() {
                   {employees.map((employee) => (
                     <tr key={employee.id}>
                       <td>
-                        <strong>
-                          {employee.employee_number}
-                        </strong>
+                        <strong>{employee.employee_number}</strong>
                       </td>
 
                       <td>
@@ -169,19 +147,15 @@ export default function EmployeesPage() {
                       <td>
                         {employee.date_of_joining
                           ? new Date(
-                              employee.date_of_joining
-                            ).toLocaleDateString(
-                              isArabic ? "ar" : "en"
-                            )
+                              employee.date_of_joining,
+                            ).toLocaleDateString(isArabic ? "ar" : "en")
                           : "—"}
                       </td>
 
                       <td>{employee.civil_id || "—"}</td>
 
                       <td className="ems-number">
-                        {Number(
-                          employee.basic_salary
-                        ).toFixed(3)}
+                        {Number(employee.basic_salary).toFixed(3)}
                       </td>
 
                       <td>
@@ -191,14 +165,14 @@ export default function EmployeesPage() {
                           {employee.status}
                         </span>
                       </td>
-<td>
-  <Link
-    href={`/ems/${lang}/employees/${employee.id}`}
-    className="ems-edit-link"
-  >
-    {t.edit}
-  </Link>
-</td>
+                      <td>
+                        <Link
+                          href={`/ems/${lang}/employees/${employee.id}`}
+                          className="ems-edit-link"
+                        >
+                          {t.edit}
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

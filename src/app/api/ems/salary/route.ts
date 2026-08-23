@@ -19,7 +19,7 @@ export async function GET(request: Request) {
           success: false,
           message: "Valid month and year are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
 
         ORDER BY e.employee_number
       `,
-      [month, year]
+      [month, year],
     );
 
     return NextResponse.json({
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
         success: false,
         message: "Unable to load payroll.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -82,9 +82,7 @@ export async function POST(request: Request) {
     const month = Number(body.month);
     const year = Number(body.year);
 
-    const records = Array.isArray(body.records)
-      ? body.records
-      : [];
+    const records = Array.isArray(body.records) ? body.records : [];
 
     if (
       !Number.isInteger(month) ||
@@ -97,7 +95,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Valid month and year are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,17 +108,13 @@ export async function POST(request: Request) {
       const allowances = Number(record.allowances || 0);
       const deductions = Number(record.deductions || 0);
 
-      const paymentStatus = String(
-        record.paymentStatus || "PENDING"
-      )
+      const paymentStatus = String(record.paymentStatus || "PENDING")
         .trim()
         .toUpperCase();
 
-      const paymentDate =
-        record.paymentDate || null;
+      const paymentDate = record.paymentDate || null;
 
-      const remarks =
-        String(record.remarks || "").trim() || null;
+      const remarks = String(record.remarks || "").trim() || null;
 
       if (
         !Number.isInteger(employeeId) ||
@@ -131,8 +125,7 @@ export async function POST(request: Request) {
         continue;
       }
 
-      const netSalary =
-        basicSalary + allowances - deductions;
+      const netSalary = basicSalary + allowances - deductions;
 
       await client.query(
         `
@@ -181,7 +174,7 @@ export async function POST(request: Request) {
           paymentStatus,
           paymentDate,
           remarks,
-        ]
+        ],
       );
     }
 
@@ -200,7 +193,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Unable to save payroll.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   } finally {
     client.release();

@@ -81,17 +81,9 @@ export default function AdminEnquiriesPage() {
             </div>
           </div>
 
-          {loading && (
-            <div className="admin-message">
-              Loading enquiries...
-            </div>
-          )}
+          {loading && <div className="admin-message">Loading enquiries...</div>}
 
-          {error && (
-            <div className="admin-error">
-              {error}
-            </div>
-          )}
+          {error && <div className="admin-error">{error}</div>}
 
           {!loading && !error && enquiries.length === 0 && (
             <div className="admin-message">
@@ -124,13 +116,9 @@ export default function AdminEnquiriesPage() {
                         <span>{enquiry.mobile}</span>
                       </td>
 
-                      <td>
-                        {enquiry.organization || "—"}
-                      </td>
+                      <td>{enquiry.organization || "—"}</td>
 
-                      <td className="message-cell">
-                        {enquiry.message}
-                      </td>
+                      <td className="message-cell">{enquiry.message}</td>
 
                       <td>
                         <span
@@ -140,11 +128,7 @@ export default function AdminEnquiriesPage() {
                         </span>
                       </td>
 
-                      <td>
-                        {new Date(
-                          enquiry.created_at
-                        ).toLocaleString()}
-                      </td>
+                      <td>{new Date(enquiry.created_at).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>

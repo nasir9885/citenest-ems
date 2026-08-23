@@ -44,32 +44,24 @@ export async function GET() {
       success: true,
 
       dashboard: {
-        totalEmployees:
-          employeeResult.rows[0].total_employees,
+        totalEmployees: employeeResult.rows[0].total_employees,
 
-        presentToday:
-          attendanceResult.rows[0].present_today,
+        presentToday: attendanceResult.rows[0].present_today,
 
-        absentToday:
-          attendanceResult.rows[0].absent_today,
+        absentToday: attendanceResult.rows[0].absent_today,
 
-        monthlyPayroll:
-          payrollResult.rows[0].monthly_payroll,
+        monthlyPayroll: payrollResult.rows[0].monthly_payroll,
       },
     });
   } catch (error) {
-    console.error(
-      "Unable to load EMS dashboard:",
-      error
-    );
+    console.error("Unable to load EMS dashboard:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Unable to load dashboard information.",
+        message: "Unable to load dashboard information.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

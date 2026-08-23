@@ -30,9 +30,8 @@ export default function HomePage() {
           </h1>
 
           <p className="hero-copy">
-            CiteNest helps organizations turn policies, manuals,
-            procedures and internal documents into reliable,
-            searchable knowledge.
+            CiteNest helps organizations turn policies, manuals, procedures and
+            internal documents into reliable, searchable knowledge.
           </p>
 
           <div className="hero-actions">
@@ -81,8 +80,8 @@ export default function HomePage() {
               <span className="feature-number">03</span>
               <h3>Traceable sources</h3>
               <p>
-                Keep answers connected to their source documents so users
-                can understand where information came from.
+                Keep answers connected to their source documents so users can
+                understand where information came from.
               </p>
             </article>
 

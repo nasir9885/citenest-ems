@@ -1,16 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  FormEvent,
-  useEffect,
-  useState,
-} from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-import {
-  useParams,
-  useRouter,
-} from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import en from "@/messages/en.json";
 import ar from "@/messages/ar.json";
@@ -36,49 +29,32 @@ export default function EditEmployeePage() {
   const params = useParams();
   const router = useRouter();
 
-  const lang =
-    typeof params.lang === "string"
-      ? params.lang
-      : "en";
+  const lang = typeof params.lang === "string" ? params.lang : "en";
 
-  const id =
-    typeof params.id === "string"
-      ? params.id
-      : "";
+  const id = typeof params.id === "string" ? params.id : "";
 
   const isArabic = lang === "ar";
   const t = isArabic ? ar : en;
 
-  const [employee, setEmployee] =
-    useState<Employee | null>(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [saving, setSaving] =
-    useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadEmployee() {
       try {
-        const response = await fetch(
-          `/api/ems/employees/${id}`,
-          {
-            cache: "no-store",
-          }
-        );
+        const response = await fetch(`/api/ems/employees/${id}`, {
+          cache: "no-store",
+        });
 
-        const result =
-          await response.json();
+        const result = await response.json();
 
         if (!response.ok) {
-          setError(
-            result.message ||
-              t.employeeNotFound
-          );
+          setError(result.message || t.employeeNotFound);
           return;
         }
 
@@ -95,93 +71,63 @@ export default function EditEmployeePage() {
     }
   }, [id, t.employeeNotFound]);
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setSaving(true);
     setError("");
 
-    const formData =
-      new FormData(event.currentTarget);
+    const formData = new FormData(event.currentTarget);
 
     const updatedEmployee = {
-      employeeNumber:
-        formData.get("employeeNumber"),
+      employeeNumber: formData.get("employeeNumber"),
 
-      nameEn:
-        formData.get("nameEn"),
+      nameEn: formData.get("nameEn"),
 
-      nameAr:
-        formData.get("nameAr"),
+      nameAr: formData.get("nameAr"),
 
-      designationEn:
-        formData.get("designationEn"),
+      designationEn: formData.get("designationEn"),
 
-      designationAr:
-        formData.get("designationAr"),
+      designationAr: formData.get("designationAr"),
 
-      dateOfJoining:
-        formData.get("dateOfJoining"),
+      dateOfJoining: formData.get("dateOfJoining"),
 
-      passportNumber:
-        formData.get("passportNumber"),
+      passportNumber: formData.get("passportNumber"),
 
-      civilId:
-        formData.get("civilId"),
+      civilId: formData.get("civilId"),
 
-      basicSalary:
-        formData.get("basicSalary"),
+      basicSalary: formData.get("basicSalary"),
 
-      bankName:
-        formData.get("bankName"),
+      bankName: formData.get("bankName"),
 
-      bankAccountNumber:
-        formData.get(
-          "bankAccountNumber"
-        ),
+      bankAccountNumber: formData.get("bankAccountNumber"),
 
-      iban:
-        formData.get("iban"),
+      iban: formData.get("iban"),
 
-      status:
-        formData.get("status"),
+      status: formData.get("status"),
     };
 
     try {
-      const response = await fetch(
-        `/api/ems/employees/${id}`,
-        {
-          method: "PUT",
+      const response = await fetch(`/api/ems/employees/${id}`, {
+        method: "PUT",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-          body: JSON.stringify(
-            updatedEmployee
-          ),
-        }
-      );
+        body: JSON.stringify(updatedEmployee),
+      });
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        setError(
-          result.message ||
-            t.errorEmployee
-        );
+        setError(result.message || t.errorEmployee);
 
         setSaving(false);
         return;
       }
 
-      router.push(
-        `/ems/${lang}/employees`
-      );
+      router.push(`/ems/${lang}/employees`);
 
       router.refresh();
     } catch {
@@ -193,22 +139,12 @@ export default function EditEmployeePage() {
   if (loading) {
     return (
       <main
-        className={`ems-page ${
-          isArabic
-            ? "ems-rtl"
-            : "ems-ltr"
-        }`}
-        dir={
-          isArabic
-            ? "rtl"
-            : "ltr"
-        }
+        className={`ems-page ${isArabic ? "ems-rtl" : "ems-ltr"}`}
+        dir={isArabic ? "rtl" : "ltr"}
       >
         <section className="ems-section">
           <div className="ems-container">
-            <div className="ems-message">
-              {t.loading}
-            </div>
+            <div className="ems-message">{t.loading}</div>
           </div>
         </section>
       </main>
@@ -218,23 +154,12 @@ export default function EditEmployeePage() {
   if (!employee) {
     return (
       <main
-        className={`ems-page ${
-          isArabic
-            ? "ems-rtl"
-            : "ems-ltr"
-        }`}
-        dir={
-          isArabic
-            ? "rtl"
-            : "ltr"
-        }
+        className={`ems-page ${isArabic ? "ems-rtl" : "ems-ltr"}`}
+        dir={isArabic ? "rtl" : "ltr"}
       >
         <section className="ems-section">
           <div className="ems-container">
-            <div className="ems-error">
-              {error ||
-                t.employeeNotFound}
-            </div>
+            <div className="ems-error">{error || t.employeeNotFound}</div>
           </div>
         </section>
       </main>
@@ -243,42 +168,25 @@ export default function EditEmployeePage() {
 
   return (
     <main
-      className={`ems-page ${
-        isArabic
-          ? "ems-rtl"
-          : "ems-ltr"
-      }`}
-      dir={
-        isArabic
-          ? "rtl"
-          : "ltr"
-      }
+      className={`ems-page ${isArabic ? "ems-rtl" : "ems-ltr"}`}
+      dir={isArabic ? "rtl" : "ltr"}
     >
       <header className="ems-header">
         <div className="ems-container ems-nav">
           <div>
-            <Link
-              href={`/ems/${lang}`}
-              className="ems-brand"
-            >
+            <Link href={`/ems/${lang}`} className="ems-brand">
               CiteNest
             </Link>
 
-            <span className="ems-app-name">
-              {t.appName}
-            </span>
+            <span className="ems-app-name">{t.appName}</span>
           </div>
         </div>
       </header>
 
       <section className="ems-section">
         <div className="ems-container">
-
           <div className="ems-form-header">
-            <Link
-              href={`/ems/${lang}/employees`}
-              className="ems-back-link"
-            >
+            <Link href={`/ems/${lang}/employees`} className="ems-back-link">
               ← {t.employeeList}
             </Link>
 
@@ -286,26 +194,15 @@ export default function EditEmployeePage() {
           </div>
 
           <div className="ems-form-card">
+            {error && <div className="ems-error">{error}</div>}
 
-            {error && (
-              <div className="ems-error">
-                {error}
-              </div>
-            )}
-
-            <form
-              className="ems-form"
-              onSubmit={handleSubmit}
-            >
+            <form className="ems-form" onSubmit={handleSubmit}>
               <div className="ems-form-grid">
-
                 <label>
                   {t.employeeNumber} *
                   <input
                     name="employeeNumber"
-                    defaultValue={
-                      employee.employee_number
-                    }
+                    defaultValue={employee.employee_number}
                     required
                   />
                 </label>
@@ -314,9 +211,7 @@ export default function EditEmployeePage() {
                   English Name *
                   <input
                     name="nameEn"
-                    defaultValue={
-                      employee.name_en
-                    }
+                    defaultValue={employee.name_en}
                     required
                   />
                 </label>
@@ -326,9 +221,7 @@ export default function EditEmployeePage() {
                   <input
                     name="nameAr"
                     dir="rtl"
-                    defaultValue={
-                      employee.name_ar || ""
-                    }
+                    defaultValue={employee.name_ar || ""}
                   />
                 </label>
 
@@ -336,10 +229,7 @@ export default function EditEmployeePage() {
                   English Designation
                   <input
                     name="designationEn"
-                    defaultValue={
-                      employee.designation_en ||
-                      ""
-                    }
+                    defaultValue={employee.designation_en || ""}
                   />
                 </label>
 
@@ -348,10 +238,7 @@ export default function EditEmployeePage() {
                   <input
                     name="designationAr"
                     dir="rtl"
-                    defaultValue={
-                      employee.designation_ar ||
-                      ""
-                    }
+                    defaultValue={employee.designation_ar || ""}
                   />
                 </label>
 
@@ -362,10 +249,7 @@ export default function EditEmployeePage() {
                     name="dateOfJoining"
                     defaultValue={
                       employee.date_of_joining
-                        ? employee.date_of_joining.substring(
-                            0,
-                            10
-                          )
+                        ? employee.date_of_joining.substring(0, 10)
                         : ""
                     }
                   />
@@ -375,10 +259,7 @@ export default function EditEmployeePage() {
                   {t.passportNumber}
                   <input
                     name="passportNumber"
-                    defaultValue={
-                      employee.passport_number ||
-                      ""
-                    }
+                    defaultValue={employee.passport_number || ""}
                   />
                 </label>
 
@@ -386,9 +267,7 @@ export default function EditEmployeePage() {
                   {t.civilId}
                   <input
                     name="civilId"
-                    defaultValue={
-                      employee.civil_id || ""
-                    }
+                    defaultValue={employee.civil_id || ""}
                   />
                 </label>
 
@@ -399,9 +278,7 @@ export default function EditEmployeePage() {
                     step="0.001"
                     min="0"
                     name="basicSalary"
-                    defaultValue={
-                      employee.basic_salary
-                    }
+                    defaultValue={employee.basic_salary}
                     required
                   />
                 </label>
@@ -410,9 +287,7 @@ export default function EditEmployeePage() {
                   {t.bankName}
                   <input
                     name="bankName"
-                    defaultValue={
-                      employee.bank_name || ""
-                    }
+                    defaultValue={employee.bank_name || ""}
                   />
                 </label>
 
@@ -420,46 +295,27 @@ export default function EditEmployeePage() {
                   {t.bankAccount}
                   <input
                     name="bankAccountNumber"
-                    defaultValue={
-                      employee.bank_account_number ||
-                      ""
-                    }
+                    defaultValue={employee.bank_account_number || ""}
                   />
                 </label>
 
                 <label>
                   {t.iban}
-                  <input
-                    name="iban"
-                    defaultValue={
-                      employee.iban || ""
-                    }
-                  />
+                  <input name="iban" defaultValue={employee.iban || ""} />
                 </label>
 
                 <label>
                   {t.status}
 
-                  <select
-                    name="status"
-                    defaultValue={
-                      employee.status
-                    }
-                  >
-                    <option value="ACTIVE">
-                      {t.active}
-                    </option>
+                  <select name="status" defaultValue={employee.status}>
+                    <option value="ACTIVE">{t.active}</option>
 
-                    <option value="INACTIVE">
-                      {t.inactive}
-                    </option>
+                    <option value="INACTIVE">{t.inactive}</option>
                   </select>
                 </label>
-
               </div>
 
               <div className="ems-form-actions">
-
                 <Link
                   href={`/ems/${lang}/employees`}
                   className="secondary-action"
@@ -472,11 +328,8 @@ export default function EditEmployeePage() {
                   className="primary-action"
                   disabled={saving}
                 >
-                  {saving
-                    ? t.updating
-                    : t.updateEmployee}
+                  {saving ? t.updating : t.updateEmployee}
                 </button>
-
               </div>
             </form>
           </div>

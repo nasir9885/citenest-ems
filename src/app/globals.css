@@ -32,10 +32,7 @@ html {
 body {
   background: var(--background);
   color: var(--text);
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   line-height: 1.6;
 }
 
@@ -48,7 +45,6 @@ a {
   width: min(92%, var(--max-width));
   margin: 0 auto;
 }
-
 
 /* ========================================
    Header / Navigation
@@ -107,7 +103,6 @@ nav a:hover {
   background: var(--primary-dark);
 }
 
-
 /* ========================================
    Hero
    ======================================== */
@@ -126,11 +121,7 @@ nav a:hover {
       rgba(8, 127, 140, 0.12),
       transparent 32%
     ),
-    linear-gradient(
-      180deg,
-      #ffffff 0%,
-      #f7f9fc 100%
-    );
+    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
 }
 
 .hero-content {
@@ -247,7 +238,6 @@ nav a:hover {
   transform: translateY(-50%);
 }
 
-
 /* ========================================
    General Sections
    ======================================== */
@@ -267,7 +257,6 @@ nav a:hover {
 
   letter-spacing: -0.04em;
 }
-
 
 /* ========================================
    Feature Cards
@@ -297,8 +286,7 @@ nav a:hover {
 .feature-card:hover {
   transform: translateY(-4px);
 
-  box-shadow:
-    0 14px 40px rgba(20, 40, 50, 0.08);
+  box-shadow: 0 14px 40px rgba(20, 40, 50, 0.08);
 }
 
 .feature-number {
@@ -322,7 +310,6 @@ nav a:hover {
 
   color: var(--text-secondary);
 }
-
 
 /* ========================================
    Workflow
@@ -376,7 +363,6 @@ nav a:hover {
   font-size: 0.95rem;
 }
 
-
 /* ========================================
    CTA
    ======================================== */
@@ -418,7 +404,6 @@ nav a:hover {
   flex-shrink: 0;
 }
 
-
 /* ========================================
    Footer
    ======================================== */
@@ -446,13 +431,11 @@ footer {
   font-size: 1.1rem;
 }
 
-
 /* ========================================
    Responsive
    ======================================== */
 
 @media (max-width: 850px) {
-
   nav a:not(.nav-action) {
     display: none;
   }
@@ -503,7 +486,6 @@ footer {
 }
 
 @media (max-width: 520px) {
-
   .nav {
     min-height: 66px;
   }
@@ -558,11 +540,7 @@ footer {
 .enquiry-page {
   min-height: 100vh;
   background:
-    radial-gradient(
-      circle at 10% 15%,
-      rgba(8, 127, 140, 0.1),
-      transparent 30%
-    ),
+    radial-gradient(circle at 10% 15%, rgba(8, 127, 140, 0.1), transparent 30%),
     var(--background);
 }
 
@@ -637,8 +615,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 16px;
 
-  box-shadow:
-    0 20px 60px rgba(20, 40, 50, 0.08);
+  box-shadow: 0 20px 60px rgba(20, 40, 50, 0.08);
 }
 
 .enquiry-card h2 {
@@ -699,8 +676,7 @@ footer {
 .enquiry-card textarea:focus {
   border-color: var(--primary);
 
-  box-shadow:
-    0 0 0 3px rgba(8, 127, 140, 0.1);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
 }
 
 .enquiry-card textarea {
@@ -770,11 +746,7 @@ footer {
 .enquiry-page {
   min-height: 100vh;
   background:
-    radial-gradient(
-      circle at 10% 15%,
-      rgba(8, 127, 140, 0.1),
-      transparent 30%
-    ),
+    radial-gradient(circle at 10% 15%, rgba(8, 127, 140, 0.1), transparent 30%),
     var(--background);
 }
 
@@ -849,8 +821,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 16px;
 
-  box-shadow:
-    0 20px 60px rgba(20, 40, 50, 0.08);
+  box-shadow: 0 20px 60px rgba(20, 40, 50, 0.08);
 }
 
 .enquiry-card h2 {
@@ -911,8 +882,7 @@ footer {
 .enquiry-card textarea:focus {
   border-color: var(--primary);
 
-  box-shadow:
-    0 0 0 3px rgba(8, 127, 140, 0.1);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
 }
 
 .enquiry-card textarea {
@@ -974,18 +944,14 @@ footer {
   .enquiry-intro h1 {
     font-size: 2.8rem;
   }
-}/* ========================================
+} /* ========================================
    Enquiry Page
    ======================================== */
 
 .enquiry-page {
   min-height: 100vh;
   background:
-    radial-gradient(
-      circle at 10% 15%,
-      rgba(8, 127, 140, 0.1),
-      transparent 30%
-    ),
+    radial-gradient(circle at 10% 15%, rgba(8, 127, 140, 0.1), transparent 30%),
     var(--background);
 }
 
@@ -1060,8 +1026,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 16px;
 
-  box-shadow:
-    0 20px 60px rgba(20, 40, 50, 0.08);
+  box-shadow: 0 20px 60px rgba(20, 40, 50, 0.08);
 }
 
 .enquiry-card h2 {
@@ -1122,8 +1087,7 @@ footer {
 .enquiry-card textarea:focus {
   border-color: var(--primary);
 
-  box-shadow:
-    0 0 0 3px rgba(8, 127, 140, 0.1);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
 }
 
 .enquiry-card textarea {
@@ -1193,11 +1157,7 @@ footer {
 .enquiry-page {
   min-height: 100vh;
   background:
-    radial-gradient(
-      circle at 10% 15%,
-      rgba(8, 127, 140, 0.1),
-      transparent 30%
-    ),
+    radial-gradient(circle at 10% 15%, rgba(8, 127, 140, 0.1), transparent 30%),
     var(--background);
 }
 
@@ -1272,8 +1232,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 16px;
 
-  box-shadow:
-    0 20px 60px rgba(20, 40, 50, 0.08);
+  box-shadow: 0 20px 60px rgba(20, 40, 50, 0.08);
 }
 
 .enquiry-card h2 {
@@ -1334,8 +1293,7 @@ footer {
 .enquiry-card textarea:focus {
   border-color: var(--primary);
 
-  box-shadow:
-    0 0 0 3px rgba(8, 127, 140, 0.1);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
 }
 
 .enquiry-card textarea {
@@ -1776,8 +1734,7 @@ footer {
 .ems-module-card:hover {
   transform: translateY(-4px);
 
-  box-shadow:
-    0 15px 40px rgba(20, 40, 50, 0.08);
+  box-shadow: 0 15px 40px rgba(20, 40, 50, 0.08);
 }
 
 .ems-module-number {
@@ -1806,10 +1763,7 @@ footer {
 }
 
 .ems-rtl {
-  font-family:
-    Arial,
-    "Tahoma",
-    sans-serif;
+  font-family: Arial, "Tahoma", sans-serif;
 }
 
 @media (max-width: 900px) {
@@ -1994,8 +1948,7 @@ footer {
 .ems-form select:focus {
   border-color: #087f8c;
   outline: none;
-  box-shadow:
-    0 0 0 3px rgba(8, 127, 140, 0.1);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.1);
 }
 
 .ems-form-actions {
@@ -2266,8 +2219,7 @@ footer {
 
   font-size: 1.4rem;
 
-  font-variant-numeric:
-    tabular-nums;
+  font-variant-numeric: tabular-nums;
 }
 
 .salary-table {

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+.env
+.env.*
+*.pem
+*.key
+*.dump
+*.backup
+*.sql
+pnpm-lock.yaml
+pnpm-lock.yaml

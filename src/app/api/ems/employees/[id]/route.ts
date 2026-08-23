@@ -7,10 +7,7 @@ type RouteProps = {
   }>;
 };
 
-export async function GET(
-  request: Request,
-  { params }: RouteProps
-) {
+export async function GET(request: Request, { params }: RouteProps) {
   try {
     const { id } = await params;
 
@@ -36,7 +33,7 @@ export async function GET(
         FROM employees
         WHERE id = $1
       `,
-      [id]
+      [id],
     );
 
     if (result.rows.length === 0) {
@@ -45,7 +42,7 @@ export async function GET(
           success: false,
           message: "Employee not found.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -61,81 +58,62 @@ export async function GET(
         success: false,
         message: "Unable to load employee.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: RouteProps
-) {
+export async function PUT(request: Request, { params }: RouteProps) {
   try {
     const { id } = await params;
     const body = await request.json();
 
-    const employeeNumber =
-      String(body.employeeNumber || "").trim();
+    const employeeNumber = String(body.employeeNumber || "").trim();
 
-    const nameEn =
-      String(body.nameEn || "").trim();
+    const nameEn = String(body.nameEn || "").trim();
 
-    const nameAr =
-      String(body.nameAr || "").trim() || null;
+    const nameAr = String(body.nameAr || "").trim() || null;
 
-    const designationEn =
-      String(body.designationEn || "").trim() || null;
+    const designationEn = String(body.designationEn || "").trim() || null;
 
-    const designationAr =
-      String(body.designationAr || "").trim() || null;
+    const designationAr = String(body.designationAr || "").trim() || null;
 
-    const dateOfJoining =
-      body.dateOfJoining || null;
+    const dateOfJoining = body.dateOfJoining || null;
 
-    const passportNumber =
-      String(body.passportNumber || "").trim() || null;
+    const passportNumber = String(body.passportNumber || "").trim() || null;
 
-    const civilId =
-      String(body.civilId || "").trim() || null;
+    const civilId = String(body.civilId || "").trim() || null;
 
-    const basicSalary =
-      Number(body.basicSalary || 0);
+    const basicSalary = Number(body.basicSalary || 0);
 
-    const bankName =
-      String(body.bankName || "").trim() || null;
+    const bankName = String(body.bankName || "").trim() || null;
 
     const bankAccountNumber =
       String(body.bankAccountNumber || "").trim() || null;
 
-    const iban =
-      String(body.iban || "").trim() || null;
+    const iban = String(body.iban || "").trim() || null;
 
-    const status =
-      String(body.status || "ACTIVE")
-        .trim()
-        .toUpperCase();
+    const status = String(body.status || "ACTIVE")
+      .trim()
+      .toUpperCase();
 
     if (!employeeNumber || !nameEn) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Employee number and English name are required.",
+          message: "Employee number and English name are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (
-      !Number.isFinite(basicSalary) ||
-      basicSalary < 0
-    ) {
+    if (!Number.isFinite(basicSalary) || basicSalary < 0) {
       return NextResponse.json(
         {
           success: false,
           message: "Basic salary is invalid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -175,7 +153,7 @@ export async function PUT(
         iban,
         status,
         id,
-      ]
+      ],
     );
 
     if (result.rows.length === 0) {
@@ -184,7 +162,7 @@ export async function PUT(
           success: false,
           message: "Employee not found.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -203,10 +181,9 @@ export async function PUT(
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Employee number already exists.",
+          message: "Employee number already exists.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -215,7 +192,7 @@ export async function PUT(
         success: false,
         message: "Unable to update employee.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

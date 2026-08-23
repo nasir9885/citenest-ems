@@ -7,44 +7,44 @@ export default function EnquiryPage() {
   const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-  event.preventDefault();
+    event.preventDefault();
 
-  setSubmitted(false);
+    setSubmitted(false);
 
-  const form = event.currentTarget;
-  const formData = new FormData(form);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
-  const enquiry = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    mobile: formData.get("mobile"),
-    organization: formData.get("organization"),
-    message: formData.get("message"),
-  };
+    const enquiry = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      mobile: formData.get("mobile"),
+      organization: formData.get("organization"),
+      message: formData.get("message"),
+    };
 
-  try {
-    const response = await fetch("/api/enquiries", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(enquiry),
-    });
+    try {
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(enquiry),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok) {
-      alert(result.message || "Unable to submit enquiry.");
-      return;
+      if (!response.ok) {
+        alert(result.message || "Unable to submit enquiry.");
+        return;
+      }
+
+      setSubmitted(true);
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      alert("Unable to submit enquiry. Please try again.");
     }
-
-    setSubmitted(true);
-    form.reset();
-  } catch (error) {
-    console.error(error);
-    alert("Unable to submit enquiry. Please try again.");
   }
-}
 
   return (
     <main className="enquiry-page">
@@ -110,11 +110,11 @@ export default function EnquiryPage() {
               Fields marked with * are required.
             </p>
 
-         {submitted && (
-  <div className="form-success">
-    Thank you. Your enquiry has been submitted successfully.
-  </div>
-)}
+            {submitted && (
+              <div className="form-success">
+                Thank you. Your enquiry has been submitted successfully.
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <label>
                 Name *
@@ -166,8 +166,8 @@ export default function EnquiryPage() {
               </label>
 
               <button type="submit" className="primary-action">
-  Submit enquiry
-</button>
+                Submit enquiry
+              </button>
             </form>
 
             <p className="privacy-note">

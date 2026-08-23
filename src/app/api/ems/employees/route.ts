@@ -37,7 +37,7 @@ export async function GET() {
         success: false,
         message: "Unable to load employees.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -55,25 +55,22 @@ export async function POST(request: Request) {
 
     const dateOfJoining = body.dateOfJoining || null;
 
-    const passportNumber =
-      String(body.passportNumber || "").trim() || null;
+    const passportNumber = String(body.passportNumber || "").trim() || null;
 
-    const civilId =
-      String(body.civilId || "").trim() || null;
+    const civilId = String(body.civilId || "").trim() || null;
 
     const basicSalary = Number(body.basicSalary || 0);
 
-    const bankName =
-      String(body.bankName || "").trim() || null;
+    const bankName = String(body.bankName || "").trim() || null;
 
     const bankAccountNumber =
       String(body.bankAccountNumber || "").trim() || null;
 
-    const iban =
-      String(body.iban || "").trim() || null;
+    const iban = String(body.iban || "").trim() || null;
 
-    const status =
-      String(body.status || "ACTIVE").trim().toUpperCase();
+    const status = String(body.status || "ACTIVE")
+      .trim()
+      .toUpperCase();
 
     if (!employeeNumber || !nameEn) {
       return NextResponse.json(
@@ -81,7 +78,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Employee number and English name are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -91,7 +88,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Basic salary is invalid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -132,7 +129,7 @@ export async function POST(request: Request) {
         bankAccountNumber,
         iban,
         status,
-      ]
+      ],
     );
 
     return NextResponse.json(
@@ -140,7 +137,7 @@ export async function POST(request: Request) {
         success: true,
         employee: result.rows[0],
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: unknown) {
     console.error("Unable to create employee:", error);
@@ -153,7 +150,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Employee number already exists.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -162,7 +159,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Unable to save employee.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
