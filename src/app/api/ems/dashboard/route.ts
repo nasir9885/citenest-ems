@@ -1,59 +1,97 @@
 import { NextResponse } from "next/server";
+
 import pool from "@/lib/db";
+import {
+  requireTenantContext,
+  TenantAccessError,
+} from "@/lib/tenant-context";
+
+function accessErrorResponse(error: TenantAccessError) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: error.message,
+    },
+    { status: error.status },
+  );
+}
 
 export async function GET() {
   try {
-    const employeeResult = await pool.query(`
-      SELECT COUNT(*)::INTEGER AS total_employees
-      FROM employees
-      WHERE status = 'ACTIVE'
-    `);
+    const context = await requireTenantContext();
 
-    const attendanceResult = await pool.query(`
-      SELECT
-        COUNT(*) FILTER (
-          WHERE status = 'PRESENT'
-        )::INTEGER AS present_today,
+    const [employeeResult, attendanceResult] = await Promise.all([
+      pool.query(
+        `
+          SELECT COUNT(*)::INTEGER AS total_employees
+          FROM employees
+          WHERE tenant_id = $1
+            AND status = 'ACTIVE'
+        `,
+        [context.tenantId],
+      ),
 
-        COUNT(*) FILTER (
-          WHERE status = 'ABSENT'
-        )::INTEGER AS absent_today
+      pool.query(
+        `
+          SELECT
+            COUNT(*) FILTER (
+              WHERE status = 'PRESENT'
+            )::INTEGER AS present_today,
+            COUNT(*) FILTER (
+              WHERE status = 'ABSENT'
+            )::INTEGER AS absent_today
+          FROM employee_attendance
+          WHERE tenant_id = $1
+            AND attendance_date = CURRENT_DATE
+        `,
+        [context.tenantId],
+      ),
+    ]);
 
-      FROM employee_attendance
+    let monthlyPayroll: string | number | null = null;
 
-      WHERE attendance_date = CURRENT_DATE
-    `);
+    if (context.role === "admin") {
+      const payrollResult = await pool.query(
+        `
+          SELECT COALESCE(SUM(net_salary), 0) AS monthly_payroll
+          FROM salary_payments
+          WHERE tenant_id = $1
+            AND salary_month =
+              EXTRACT(MONTH FROM CURRENT_DATE)::INTEGER
+            AND salary_year =
+              EXTRACT(YEAR FROM CURRENT_DATE)::INTEGER
+        `,
+        [context.tenantId],
+      );
 
-    const payrollResult = await pool.query(`
-      SELECT
-        COALESCE(
-          SUM(net_salary),
-          0
-        ) AS monthly_payroll
+      monthlyPayroll = payrollResult.rows[0].monthly_payroll;
+    }
 
-      FROM salary_payments
-
-      WHERE salary_month =
-        EXTRACT(MONTH FROM CURRENT_DATE)::INTEGER
-
-      AND salary_year =
-        EXTRACT(YEAR FROM CURRENT_DATE)::INTEGER
-    `);
-
-    return NextResponse.json({
-      success: true,
-
-      dashboard: {
-        totalEmployees: employeeResult.rows[0].total_employees,
-
-        presentToday: attendanceResult.rows[0].present_today,
-
-        absentToday: attendanceResult.rows[0].absent_today,
-
-        monthlyPayroll: payrollResult.rows[0].monthly_payroll,
+    return NextResponse.json(
+      {
+        success: true,
+        dashboard: {
+          role: context.role,
+          totalEmployees:
+            employeeResult.rows[0].total_employees,
+          presentToday:
+            attendanceResult.rows[0].present_today,
+          absentToday:
+            attendanceResult.rows[0].absent_today,
+          monthlyPayroll,
+        },
       },
-    });
-  } catch (error) {
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+  } catch (error: unknown) {
+    if (error instanceof TenantAccessError) {
+      return accessErrorResponse(error);
+    }
+
     console.error("Unable to load EMS dashboard:", error);
 
     return NextResponse.json(

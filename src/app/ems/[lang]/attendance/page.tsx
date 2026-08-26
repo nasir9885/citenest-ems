@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useParams } from "next/navigation";
 
@@ -50,6 +50,8 @@ export default function AttendancePage() {
 
   const [employees, setEmployees] = useState<AttendanceEmployee[]>([]);
 
+  const [role, setRole] = useState<"admin" | "user">("user");
+
   const [loading, setLoading] = useState(true);
 
   const [saving, setSaving] = useState(false);
@@ -58,7 +60,7 @@ export default function AttendancePage() {
 
   const [success, setSuccess] = useState("");
 
-  async function loadAttendance(selectedDate: string) {
+  const loadAttendance = useCallback(async (selectedDate: string) => {
     setLoading(true);
     setError("");
     setSuccess("");
@@ -78,6 +80,7 @@ export default function AttendancePage() {
 
         return;
       }
+      setRole(result.role === "admin" ? "admin" : "user");
       const rows = result.employees.map((employee: AttendanceEmployee) => ({
         ...employee,
 
@@ -96,7 +99,15 @@ export default function AttendancePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadAttendance(date);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [date, loadAttendance]);
 
   function updateEmployee(
     id: number,
@@ -242,36 +253,38 @@ export default function AttendancePage() {
                 type="date"
                 value={date}
                 onChange={(event) => {
-  const selectedDate = event.target.value;
-  setDate(selectedDate);
-  void loadAttendance(selectedDate);
-}}
+                  setDate(event.target.value);
+                }}
               />
             </label>
-            <button
-              type="button"
-              className="attendance-mark-all"
-              onClick={() =>
-                setEmployees((current) =>
-                  current.map((employee) => ({
-                    ...employee,
-                    status: "PRESENT",
-                  })),
-                )
-              }
-              disabled={loading || employees.length === 0}
-            >
-              {isArabic ? "تحديد الكل حاضر" : "Mark All Present"}
-            </button>
+            {role === "admin" && (
+              <>
+                <button
+                  type="button"
+                  className="attendance-mark-all"
+                  onClick={() =>
+                    setEmployees((current) =>
+                      current.map((employee) => ({
+                        ...employee,
+                        status: "PRESENT",
+                      })),
+                    )
+                  }
+                  disabled={loading || employees.length === 0}
+                >
+                  {isArabic ? "تحديد الكل حاضر" : "Mark All Present"}
+                </button>
 
-            <button
-              type="button"
-              className="primary-action"
-              onClick={saveAttendance}
-              disabled={saving || loading || employees.length === 0}
-            >
-              {saving ? t.savingAttendance : t.saveAttendance}
-            </button>
+                <button
+                  type="button"
+                  className="primary-action"
+                  onClick={saveAttendance}
+                  disabled={saving || loading || employees.length === 0}
+                >
+                  {saving ? t.savingAttendance : t.saveAttendance}
+                </button>
+              </>
+            )}
           </div>
 
           {success && <div className="ems-success">{success}</div>}
@@ -284,13 +297,15 @@ export default function AttendancePage() {
             <div className="attendance-empty-state">
               <p>{t.noAttendanceData}</p>
 
-              <button
-                type="button"
-                className="attendance-mark-all"
-                onClick={createAttendance}
-              >
-                {t.createAttendance}
-              </button>
+              {role === "admin" && (
+                <button
+                  type="button"
+                  className="attendance-mark-all"
+                  onClick={createAttendance}
+                >
+                  {t.createAttendance}
+                </button>
+              )}
             </div>
           )}
 
@@ -332,6 +347,7 @@ export default function AttendancePage() {
                       <td className="attendance-present-cell">
                         <input
                           type="checkbox"
+                          disabled={role !== "admin"}
                           checked={employee.status === "PRESENT"}
                           onChange={(event) =>
                             updateEmployee(
@@ -346,6 +362,7 @@ export default function AttendancePage() {
 
                       <td>
                         <select
+                          disabled={role !== "admin"}
                           value={employee.status || "PRESENT"}
 
                           onChange={(event) =>
@@ -371,6 +388,7 @@ export default function AttendancePage() {
                       <td>
                         <input
                           type="time"
+                          disabled={role !== "admin"}
                           value={employee.check_in || ""}
 
                           onChange={(event) =>
@@ -386,6 +404,7 @@ export default function AttendancePage() {
                       <td>
                         <input
                           type="time"
+                          disabled={role !== "admin"}
                           value={employee.check_out || ""}
 
                           onChange={(event) =>
@@ -401,6 +420,7 @@ export default function AttendancePage() {
                       <td>
                         <input
                           type="text"
+                          disabled={role !== "admin"}
                           value={employee.remarks || ""}
 
                           onChange={(event) =>

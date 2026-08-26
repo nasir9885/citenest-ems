@@ -1,20 +1,54 @@
 import { NextResponse } from "next/server";
+
 import pool from "@/lib/db";
+import {
+  requireAdmin,
+  requireTenantContext,
+  TenantAccessError,
+} from "@/lib/tenant-context";
+
+function accessErrorResponse(error: TenantAccessError) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: error.message,
+    },
+    { status: error.status },
+  );
+}
+
+function validPeriod(month: number, year: number): boolean {
+  return (
+    Number.isInteger(month) &&
+    month >= 1 &&
+    month <= 12 &&
+    Number.isInteger(year) &&
+    year >= 2000 &&
+    year <= 2100
+  );
+}
+
+function escapeCsv(value: unknown): string {
+  let text = value === null || value === undefined ? "" : String(value);
+
+  if (/^[=+\-@\t\r]/.test(text)) {
+    text = `'${text}`;
+  }
+
+  return `"${text.replace(/"/g, '""')}"`;
+}
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url);
+    const context = await requireTenantContext();
+    requireAdmin(context);
 
+    const url = new URL(request.url);
     const month = Number(url.searchParams.get("month"));
     const year = Number(url.searchParams.get("year"));
     const format = url.searchParams.get("format");
 
-    if (
-      !Number.isInteger(month) ||
-      month < 1 ||
-      month > 12 ||
-      !Number.isInteger(year)
-    ) {
+    if (!validPeriod(month, year)) {
       return NextResponse.json(
         {
           success: false,
@@ -33,7 +67,6 @@ export async function GET(request: Request) {
           e.bank_name,
           e.bank_account_number,
           e.iban,
-
           s.salary_month,
           s.salary_year,
           s.basic_salary,
@@ -41,28 +74,19 @@ export async function GET(request: Request) {
           s.deductions,
           s.net_salary,
           s.payment_status
-
         FROM salary_payments s
-
         JOIN employees e
-          ON e.id = s.employee_id
-
-        WHERE
-          s.salary_month = $1
-          AND s.salary_year = $2
-
+          ON e.tenant_id = s.tenant_id
+         AND e.id = s.employee_id
+        WHERE s.tenant_id = $1
+          AND s.salary_month = $2
+          AND s.salary_year = $3
         ORDER BY e.employee_number
       `,
-      [month, year],
+      [context.tenantId, month, year],
     );
 
     if (format === "csv") {
-      const escapeCsv = (value: unknown) => {
-        const text = value === null || value === undefined ? "" : String(value);
-
-        return `"${text.replace(/"/g, '""')}"`;
-      };
-
       const headers = [
         "Employee Number",
         "Employee Name",
@@ -100,25 +124,37 @@ export async function GET(request: Request) {
         ),
       ];
 
-      const csv = "\uFEFF" + lines.join("\n");
+      const csv = `\uFEFF${lines.join("\n")}`;
 
       return new Response(csv, {
         status: 200,
         headers: {
+          "Cache-Control": "no-store",
           "Content-Type": "text/csv; charset=utf-8",
-
-          "Content-Disposition": `attachment; filename="salary_bank_export_${year}_${String(
-            month,
-          ).padStart(2, "0")}.csv"`,
+          "Content-Disposition":
+            `attachment; filename="salary_bank_export_${year}_${String(
+              month,
+            ).padStart(2, "0")}.csv"`,
         },
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      records: result.rows,
-    });
-  } catch (error) {
+    return NextResponse.json(
+      {
+        success: true,
+        records: result.rows,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+  } catch (error: unknown) {
+    if (error instanceof TenantAccessError) {
+      return accessErrorResponse(error);
+    }
+
     console.error("Unable to load salary export:", error);
 
     return NextResponse.json(
