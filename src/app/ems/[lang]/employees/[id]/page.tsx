@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 
 import { useParams, useRouter } from "next/navigation";
 
 import en from "@/messages/en.json";
 import ar from "@/messages/ar.json";
+
+type Department = {
+  id: number;
+  name_en: string;
+  name_ar: string | null;
+  status: string;
+};
 
 type Employee = {
   id: number;
@@ -22,6 +30,12 @@ type Employee = {
   bank_name: string | null;
   bank_account_number: string | null;
   iban: string | null;
+  work_email: string | null;
+  phone_number: string | null;
+  present_address: string | null;
+  permanent_address: string | null;
+  photo_storage_key: string | null;
+  department_id: number | null;
   status: string;
 };
 
@@ -43,6 +57,19 @@ export default function EditEmployeePage() {
   const [saving, setSaving] = useState(false);
 
   const [error, setError] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/ems/departments", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const result = await response.json();
+        if (response.ok) setDepartments(result.departments);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     async function loadEmployee() {
@@ -105,6 +132,11 @@ export default function EditEmployeePage() {
       iban: formData.get("iban"),
 
       status: formData.get("status"),
+      workEmail: formData.get("workEmail"),
+      phoneNumber: formData.get("phoneNumber"),
+      presentAddress: formData.get("presentAddress"),
+      permanentAddress: formData.get("permanentAddress"),
+      departmentId: formData.get("departmentId"),
     };
 
     try {
@@ -125,6 +157,21 @@ export default function EditEmployeePage() {
 
         setSaving(false);
         return;
+      }
+
+      if (photo) {
+        const photoData = new FormData();
+        photoData.set("photo", photo);
+        const photoResponse = await fetch(`/api/ems/employees/${id}/photo`, {
+          method: "POST",
+          body: photoData,
+        });
+        if (!photoResponse.ok) {
+          const photoResult = await photoResponse.json();
+          setError(photoResult.message || "Employee updated, but the photo could not be uploaded.");
+          setSaving(false);
+          return;
+        }
       }
 
       router.push(`/ems/${lang}/employees`);
@@ -197,6 +244,16 @@ export default function EditEmployeePage() {
             {error && <div className="ems-error">{error}</div>}
 
             <form className="ems-form" onSubmit={handleSubmit}>
+              {employee.photo_storage_key && (
+                <Image
+                  src={`/api/ems/employees/${id}/photo`}
+                  alt={`${employee.name_en} profile`}
+                  width={120}
+                  height={120}
+                  unoptimized
+                  className="ems-employee-photo"
+                />
+              )}
               <div className="ems-form-grid">
                 <label>
                   {t.employeeNumber} *
@@ -312,6 +369,48 @@ export default function EditEmployeePage() {
 
                     <option value="INACTIVE">{t.inactive}</option>
                   </select>
+                </label>
+
+                <label>
+                  Department
+                  <select name="departmentId" defaultValue={employee.department_id || ""}>
+                    <option value="">Not assigned</option>
+                    {departments.map((department) => (
+                      <option key={department.id} value={department.id}>
+                        {isArabic ? department.name_ar || department.name_en : department.name_en}
+                        {department.status === "INACTIVE" ? " (Inactive)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  Work Email
+                  <input type="email" name="workEmail" defaultValue={employee.work_email || ""} />
+                </label>
+
+                <label>
+                  Phone Number
+                  <input name="phoneNumber" defaultValue={employee.phone_number || ""} />
+                </label>
+
+                <label>
+                  Employee Photo
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => setPhoto(event.target.files?.[0] || null)}
+                  />
+                </label>
+
+                <label className="ems-form-wide">
+                  Present Address
+                  <textarea name="presentAddress" rows={3} defaultValue={employee.present_address || ""} />
+                </label>
+
+                <label className="ems-form-wide">
+                  Permanent Address
+                  <textarea name="permanentAddress" rows={3} defaultValue={employee.permanent_address || ""} />
                 </label>
               </div>
 

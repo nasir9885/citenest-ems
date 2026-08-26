@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CiteNest EMS
 
-## Getting Started
+Multi-tenant employee management application built with Next.js, PostgreSQL, and Authentik OIDC.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Copy `.env.example` to `.env` and replace every placeholder.
+2. Start the dedicated EMS PostgreSQL container and local Authentik infrastructure.
+3. Apply database migrations with `pnpm.cmd db:migrate` on Windows.
+4. Start EMS with `pnpm.cmd dev` and open `http://localhost:3001`.
+
+Never commit `.env`, Authentik API tokens, OIDC secrets, or database passwords.
+
+## Tenant identity model
+
+Every Authentik EMS user must have the attribute:
+
+```yaml
+citenest_ems_tenant_key: TENANT_KEY
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For a tenant such as `acme`, provision these tenant-specific groups:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `citenest-ems-acme-admins`
+- `citenest-ems-acme-users`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+An EMS administrator is assigned to `citenest-ems-all-users`, `citenest-ems-admins`, and the tenant administrator group. An EMS user is assigned to `citenest-ems-all-users`, `citenest-ems-users`, and the tenant user group.
 
-## Learn More
+The tenant administrator cannot select a tenant or arbitrary Authentik groups. The server derives them from the authenticated tenant context.
 
-To learn more about Next.js, take a look at the following resources:
+## Authentik user-management service account
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a dedicated Authentik service account and API token for EMS automation. Configure:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```dotenv
+AUTHENTIK_API_URL=http://localhost:9000/api/v3/
+AUTHENTIK_API_TOKEN=REPLACE_WITH_SERVICE_ACCOUNT_API_TOKEN
+```
 
-## Deploy on Vercel
+Grant the service account only the permissions needed to view and create users, view EMS groups, change users created under `citenest/ems/`, and set user passwords.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Do not make the service account or tenant administrators superusers. Store the API token only in the server environment and rotate it regularly.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Validation
+
+```powershell
+pnpm.cmd exec tsc --noEmit
+pnpm.cmd lint
+pnpm.cmd build
+```

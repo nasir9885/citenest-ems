@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import en from "@/messages/en.json";
 import ar from "@/messages/ar.json";
+
+type Department = {
+  id: number;
+  name_en: string;
+  name_ar: string | null;
+  status: string;
+};
 
 export default function AddEmployeePage() {
   const params = useParams();
@@ -18,6 +25,19 @@ export default function AddEmployeePage() {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/ems/departments", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const result = await response.json();
+        if (response.ok) setDepartments(result.departments);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,6 +70,11 @@ export default function AddEmployeePage() {
       iban: formData.get("iban"),
 
       status: formData.get("status"),
+      workEmail: formData.get("workEmail"),
+      phoneNumber: formData.get("phoneNumber"),
+      presentAddress: formData.get("presentAddress"),
+      permanentAddress: formData.get("permanentAddress"),
+      departmentId: formData.get("departmentId"),
     };
 
     try {
@@ -67,6 +92,21 @@ export default function AddEmployeePage() {
         setError(result.message || t.errorEmployee);
         setSaving(false);
         return;
+      }
+
+      if (photo) {
+        const photoData = new FormData();
+        photoData.set("photo", photo);
+        const photoResponse = await fetch(`/api/ems/employees/${result.employee.id}/photo`, {
+          method: "POST",
+          body: photoData,
+        });
+        if (!photoResponse.ok) {
+          const photoResult = await photoResponse.json();
+          setError(photoResult.message || "Employee saved, but the photo could not be uploaded.");
+          setSaving(false);
+          return;
+        }
       }
 
       router.push(`/ems/${lang}/employees`);
@@ -182,6 +222,49 @@ export default function AddEmployeePage() {
 
                     <option value="INACTIVE">{t.inactive}</option>
                   </select>
+                </label>
+
+                <label>
+                  Department
+                  <select name="departmentId" defaultValue="">
+                    <option value="">Not assigned</option>
+                    {departments
+                      .filter((department) => department.status === "ACTIVE")
+                      .map((department) => (
+                        <option key={department.id} value={department.id}>
+                          {isArabic ? department.name_ar || department.name_en : department.name_en}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+
+                <label>
+                  Work Email
+                  <input type="email" name="workEmail" />
+                </label>
+
+                <label>
+                  Phone Number
+                  <input name="phoneNumber" />
+                </label>
+
+                <label>
+                  Employee Photo
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(event) => setPhoto(event.target.files?.[0] || null)}
+                  />
+                </label>
+
+                <label className="ems-form-wide">
+                  Present Address
+                  <textarea name="presentAddress" rows={3} />
+                </label>
+
+                <label className="ems-form-wide">
+                  Permanent Address
+                  <textarea name="permanentAddress" rows={3} />
                 </label>
               </div>
 

@@ -1,19 +1,43 @@
 import { NextResponse } from "next/server";
+
 import pool from "@/lib/db";
+import {
+  requireAdmin,
+  requireTenantContext,
+  TenantAccessError,
+} from "@/lib/tenant-context";
+
+function accessErrorResponse(error: TenantAccessError) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: error.message,
+    },
+    { status: error.status },
+  );
+}
+
+function validPeriod(month: number, year: number): boolean {
+  return (
+    Number.isInteger(month) &&
+    month >= 1 &&
+    month <= 12 &&
+    Number.isInteger(year) &&
+    year >= 2000 &&
+    year <= 2100
+  );
+}
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url);
+    const context = await requireTenantContext();
+    requireAdmin(context);
 
+    const url = new URL(request.url);
     const month = Number(url.searchParams.get("month"));
     const year = Number(url.searchParams.get("year"));
 
-    if (
-      !Number.isInteger(month) ||
-      month < 1 ||
-      month > 12 ||
-      !Number.isInteger(year)
-    ) {
+    if (!validPeriod(month, year)) {
       return NextResponse.json(
         {
           success: false,
@@ -33,7 +57,6 @@ export async function GET(request: Request) {
           e.designation_en,
           e.designation_ar,
           e.basic_salary AS employee_basic_salary,
-
           s.basic_salary,
           s.allowances,
           s.deductions,
@@ -41,26 +64,28 @@ export async function GET(request: Request) {
           s.payment_status,
           s.payment_date,
           s.remarks
-
         FROM employees e
-
         LEFT JOIN salary_payments s
-          ON s.employee_id = e.id
-         AND s.salary_month = $1
-         AND s.salary_year = $2
-
-        WHERE e.status = 'ACTIVE'
-
+          ON s.tenant_id = e.tenant_id
+         AND s.employee_id = e.id
+         AND s.salary_month = $2
+         AND s.salary_year = $3
+        WHERE e.tenant_id = $1
+          AND e.status = 'ACTIVE'
         ORDER BY e.employee_number
       `,
-      [month, year],
+      [context.tenantId, month, year],
     );
 
     return NextResponse.json({
       success: true,
       employees: result.rows,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof TenantAccessError) {
+      return accessErrorResponse(error);
+    }
+
     console.error("Unable to load payroll:", error);
 
     return NextResponse.json(
@@ -74,22 +99,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const client = await pool.connect();
-
   try {
-    const body = await request.json();
+    const context = await requireTenantContext();
+    requireAdmin(context);
 
+    const body = await request.json();
     const month = Number(body.month);
     const year = Number(body.year);
-
     const records = Array.isArray(body.records) ? body.records : [];
 
-    if (
-      !Number.isInteger(month) ||
-      month < 1 ||
-      month > 12 ||
-      !Number.isInteger(year)
-    ) {
+    if (!validPeriod(month, year)) {
       return NextResponse.json(
         {
           success: false,
@@ -99,92 +118,175 @@ export async function POST(request: Request) {
       );
     }
 
-    await client.query("BEGIN");
+    const normalizedRecords = [];
 
     for (const record of records) {
-      const employeeId = Number(record.employeeId);
+      const employeeId = String(record.employeeId ?? "").trim();
+      const basicSalary = Number(record.basicSalary ?? 0);
+      const allowances = Number(record.allowances ?? 0);
+      const deductions = Number(record.deductions ?? 0);
 
-      const basicSalary = Number(record.basicSalary || 0);
-      const allowances = Number(record.allowances || 0);
-      const deductions = Number(record.deductions || 0);
-
-      const paymentStatus = String(record.paymentStatus || "PENDING")
+      const paymentStatus = String(
+        record.paymentStatus || "PENDING",
+      )
         .trim()
         .toUpperCase();
 
       const paymentDate = record.paymentDate || null;
-
       const remarks = String(record.remarks || "").trim() || null;
 
-      if (
-        !Number.isInteger(employeeId) ||
-        !Number.isFinite(basicSalary) ||
-        !Number.isFinite(allowances) ||
-        !Number.isFinite(deductions)
-      ) {
-        continue;
+      if (!/^[1-9]\d*$/.test(employeeId)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "A payroll employee ID is invalid.",
+          },
+          { status: 400 },
+        );
       }
 
-      const netSalary = basicSalary + allowances - deductions;
+      if (
+        !Number.isFinite(basicSalary) ||
+        !Number.isFinite(allowances) ||
+        !Number.isFinite(deductions) ||
+        basicSalary < 0 ||
+        allowances < 0 ||
+        deductions < 0 ||
+        deductions > basicSalary + allowances
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "A payroll amount is invalid.",
+          },
+          { status: 400 },
+        );
+      }
 
-      await client.query(
-        `
-          INSERT INTO salary_payments (
-            employee_id,
-            salary_month,
-            salary_year,
-            basic_salary,
-            allowances,
-            deductions,
-            net_salary,
-            payment_status,
-            payment_date,
-            remarks,
-            updated_at
-          )
-          VALUES (
-            $1, $2, $3, $4, $5,
-            $6, $7, $8, $9, $10, NOW()
-          )
+      if (
+        paymentStatus !== "PENDING" &&
+        paymentStatus !== "PAID"
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "A payroll payment status is invalid.",
+          },
+          { status: 400 },
+        );
+      }
 
-          ON CONFLICT (
-            employee_id,
-            salary_month,
-            salary_year
-          )
+      if (paymentStatus === "PAID" && !paymentDate) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Paid payroll records require a payment date.",
+          },
+          { status: 400 },
+        );
+      }
 
-          DO UPDATE SET
-            basic_salary = EXCLUDED.basic_salary,
-            allowances = EXCLUDED.allowances,
-            deductions = EXCLUDED.deductions,
-            net_salary = EXCLUDED.net_salary,
-            payment_status = EXCLUDED.payment_status,
-            payment_date = EXCLUDED.payment_date,
-            remarks = EXCLUDED.remarks,
-            updated_at = NOW()
-        `,
-        [
-          employeeId,
-          month,
-          year,
-          basicSalary,
-          allowances,
-          deductions,
-          netSalary,
-          paymentStatus,
-          paymentDate,
-          remarks,
-        ],
-      );
+      normalizedRecords.push({
+        employeeId,
+        basicSalary,
+        allowances,
+        deductions,
+        paymentStatus,
+        paymentDate,
+        remarks,
+      });
     }
 
-    await client.query("COMMIT");
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      for (const record of normalizedRecords) {
+        await client.query(
+          `
+            INSERT INTO salary_payments (
+              tenant_id,
+              employee_id,
+              salary_month,
+              salary_year,
+              basic_salary,
+              allowances,
+              deductions,
+              payment_status,
+              payment_date,
+              remarks
+            )
+            VALUES (
+              $1, $2, $3, $4, $5,
+              $6, $7, $8, $9, $10
+            )
+            ON CONFLICT (
+              tenant_id,
+              employee_id,
+              salary_month,
+              salary_year
+            )
+            DO UPDATE SET
+              basic_salary = EXCLUDED.basic_salary,
+              allowances = EXCLUDED.allowances,
+              deductions = EXCLUDED.deductions,
+              payment_status = EXCLUDED.payment_status,
+              payment_date = EXCLUDED.payment_date,
+              remarks = EXCLUDED.remarks
+          `,
+          [
+            context.tenantId,
+            record.employeeId,
+            month,
+            year,
+            record.basicSalary,
+            record.allowances,
+            record.deductions,
+            record.paymentStatus,
+            record.paymentDate,
+            record.remarks,
+          ],
+        );
+      }
+
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
 
     return NextResponse.json({
       success: true,
     });
-  } catch (error) {
-    await client.query("ROLLBACK");
+  } catch (error: unknown) {
+    if (error instanceof TenantAccessError) {
+      return accessErrorResponse(error);
+    }
+
+    const pgError = error as { code?: string };
+
+    if (pgError.code === "23503") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "An employee does not belong to this tenant.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (pgError.code === "23514" || pgError.code === "22007") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "A payroll value or payment date is invalid.",
+        },
+        { status: 400 },
+      );
+    }
 
     console.error("Unable to save payroll:", error);
 
@@ -195,7 +297,5 @@ export async function POST(request: Request) {
       },
       { status: 500 },
     );
-  } finally {
-    client.release();
   }
 }

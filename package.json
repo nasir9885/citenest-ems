@@ -2,11 +2,13 @@
   "name": "citenest-ems",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.19.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "node --env-file=.env scripts/migrate.mjs"
   },
   "dependencies": {
     "next": "16.2.12",

@@ -14,6 +14,8 @@ type Employee = {
   name_ar: string | null;
   designation_en: string | null;
   designation_ar: string | null;
+  department_name_en: string | null;
+  department_name_ar: string | null;
   date_of_joining: string | null;
   civil_id: string | null;
   basic_salary: string;
@@ -29,14 +31,26 @@ export default function EmployeesPage() {
   const t = isArabic ? ar : en;
 
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [role, setRole] = useState<"admin" | "user">("user");
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
     async function loadEmployees() {
+      setLoading(true);
+      setError("");
       try {
-        const response = await fetch("/api/ems/employees", {
+        const search = new URLSearchParams();
+        if (query.trim()) search.set("q", query.trim());
+        if (statusFilter) search.set("status", statusFilter);
+
+        const response = await fetch(`/api/ems/employees?${search}`, {
           cache: "no-store",
+          signal: controller.signal,
         });
 
         const result = await response.json();
@@ -46,16 +60,24 @@ export default function EmployeesPage() {
           return;
         }
 
+        setRole(result.role === "admin" ? "admin" : "user");
         setEmployees(result.employees);
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
         setError("Unable to connect to the server.");
       } finally {
         setLoading(false);
       }
     }
 
-    loadEmployees();
-  }, []);
+    void loadEmployees();
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [query, statusFilter]);
 
   return (
     <main
@@ -77,6 +99,7 @@ export default function EmployeesPage() {
 
             <Link href="/ems/ar/employees">العربية</Link>
           </div>
+
         </div>
       </header>
 
@@ -91,12 +114,38 @@ export default function EmployeesPage() {
               <h1>{t.employeeList}</h1>
             </div>
 
-            <Link
-              href={`/ems/${lang}/employees/new`}
-              className="primary-action"
-            >
-              + {t.addEmployee}
-            </Link>
+            {role === "admin" && (
+              <Link
+                href={`/ems/${lang}/employees/new`}
+                className="primary-action"
+              >
+                + {t.addEmployee}
+              </Link>
+            )}
+          </div>
+
+          <div className="ems-directory-filters">
+            <label>
+              Search employees
+              <input
+                type="search"
+                value={query}
+                placeholder="Name, number, Civil ID, email or phone"
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+
+            <label>
+              {t.status}
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+              >
+                <option value="">All</option>
+                <option value="ACTIVE">{t.active}</option>
+                <option value="INACTIVE">{t.inactive}</option>
+              </select>
+            </label>
           </div>
 
           {loading && <div className="ems-message">{t.loading}</div>}
@@ -115,11 +164,12 @@ export default function EmployeesPage() {
                     <th>{t.employeeNumber}</th>
                     <th>{t.employeeName}</th>
                     <th>{t.designation}</th>
+                    <th>Department</th>
                     <th>{t.dateOfJoining}</th>
                     <th>{t.civilId}</th>
                     <th>{t.basicSalary}</th>
                     <th>{t.status}</th>
-                    <th>{t.actions}</th>
+                    {role === "admin" && <th>{t.actions}</th>}
                   </tr>
                 </thead>
 
@@ -145,6 +195,12 @@ export default function EmployeesPage() {
                       </td>
 
                       <td>
+                        {isArabic
+                          ? employee.department_name_ar || employee.department_name_en || "—"
+                          : employee.department_name_en || "—"}
+                      </td>
+
+                      <td>
                         {employee.date_of_joining
                           ? new Date(
                               employee.date_of_joining,
@@ -165,14 +221,16 @@ export default function EmployeesPage() {
                           {employee.status}
                         </span>
                       </td>
-                      <td>
-                        <Link
-                          href={`/ems/${lang}/employees/${employee.id}`}
-                          className="ems-edit-link"
-                        >
-                          {t.edit}
-                        </Link>
-                      </td>
+                      {role === "admin" && (
+                        <td>
+                          <Link
+                            href={`/ems/${lang}/employees/${employee.id}`}
+                            className="ems-edit-link"
+                          >
+                            {t.edit}
+                          </Link>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
