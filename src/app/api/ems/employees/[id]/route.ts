@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
+
 import pool from "@/lib/db";
+import {
+  requireAdmin,
+  requireTenantContext,
+  TenantAccessError,
+} from "@/lib/tenant-context";
 
 type RouteProps = {
   params: Promise<{
@@ -7,9 +13,34 @@ type RouteProps = {
   }>;
 };
 
-export async function GET(request: Request, { params }: RouteProps) {
+function accessErrorResponse(error: TenantAccessError) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: error.message,
+    },
+    { status: error.status },
+  );
+}
+
+function isValidEmployeeId(id: string): boolean {
+  return /^[1-9]\d*$/.test(id);
+}
+
+export async function GET(_request: Request, { params }: RouteProps) {
   try {
+    const context = await requireTenantContext();
     const { id } = await params;
+
+    if (!isValidEmployeeId(id)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Employee ID is invalid.",
+        },
+        { status: 400 },
+      );
+    }
 
     const result = await pool.query(
       `
@@ -27,16 +58,25 @@ export async function GET(request: Request, { params }: RouteProps) {
           bank_name,
           bank_account_number,
           iban,
+          work_email,
+          phone_number,
+          present_address,
+          permanent_address,
+          photo_storage_key,
+          department_id,
           status,
           created_at,
           updated_at
         FROM employees
-        WHERE id = $1
+        WHERE tenant_id = $1
+          AND id = $2
       `,
-      [id],
+      [context.tenantId, id],
     );
 
-    if (result.rows.length === 0) {
+    const employee = result.rows[0];
+
+    if (!employee) {
       return NextResponse.json(
         {
           success: false,
@@ -48,9 +88,13 @@ export async function GET(request: Request, { params }: RouteProps) {
 
     return NextResponse.json({
       success: true,
-      employee: result.rows[0],
+      employee,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof TenantAccessError) {
+      return accessErrorResponse(error);
+    }
+
     console.error("Unable to load employee:", error);
 
     return NextResponse.json(
@@ -65,33 +109,55 @@ export async function GET(request: Request, { params }: RouteProps) {
 
 export async function PUT(request: Request, { params }: RouteProps) {
   try {
+    const context = await requireTenantContext();
+    requireAdmin(context);
+
     const { id } = await params;
+
+    if (!isValidEmployeeId(id)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Employee ID is invalid.",
+        },
+        { status: 400 },
+      );
+    }
+
     const body = await request.json();
 
     const employeeNumber = String(body.employeeNumber || "").trim();
-
     const nameEn = String(body.nameEn || "").trim();
-
     const nameAr = String(body.nameAr || "").trim() || null;
 
-    const designationEn = String(body.designationEn || "").trim() || null;
+    const designationEn =
+      String(body.designationEn || "").trim() || null;
 
-    const designationAr = String(body.designationAr || "").trim() || null;
+    const designationAr =
+      String(body.designationAr || "").trim() || null;
 
     const dateOfJoining = body.dateOfJoining || null;
 
-    const passportNumber = String(body.passportNumber || "").trim() || null;
+    const passportNumber =
+      String(body.passportNumber || "").trim() || null;
 
     const civilId = String(body.civilId || "").trim() || null;
-
     const basicSalary = Number(body.basicSalary || 0);
-
     const bankName = String(body.bankName || "").trim() || null;
 
     const bankAccountNumber =
       String(body.bankAccountNumber || "").trim() || null;
 
     const iban = String(body.iban || "").trim() || null;
+    const workEmail = String(body.workEmail || "").trim().toLowerCase() || null;
+    const phoneNumber = String(body.phoneNumber || "").trim() || null;
+    const presentAddress = String(body.presentAddress || "").trim() || null;
+    const permanentAddress = String(body.permanentAddress || "").trim() || null;
+    const departmentId = String(body.departmentId || "").trim() || null;
+
+    if (departmentId && !/^[1-9]\d*$/.test(departmentId)) {
+      return NextResponse.json({ success: false, message: "Department is invalid." }, { status: 400 });
+    }
 
     const status = String(body.status || "ACTIVE")
       .trim()
@@ -117,6 +183,16 @@ export async function PUT(request: Request, { params }: RouteProps) {
       );
     }
 
+    if (status !== "ACTIVE" && status !== "INACTIVE") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Employee status is invalid.",
+        },
+        { status: 400 },
+      );
+    }
+
     const result = await pool.query(
       `
         UPDATE employees
@@ -134,9 +210,30 @@ export async function PUT(request: Request, { params }: RouteProps) {
           bank_account_number = $11,
           iban = $12,
           status = $13,
-          updated_at = NOW()
-        WHERE id = $14
-        RETURNING *
+          work_email = $14,
+          phone_number = $15,
+          present_address = $16,
+          permanent_address = $17,
+          department_id = $18
+        WHERE tenant_id = $19
+          AND id = $20
+        RETURNING
+          id,
+          employee_number,
+          name_en,
+          name_ar,
+          designation_en,
+          designation_ar,
+          date_of_joining,
+          passport_number,
+          civil_id,
+          basic_salary,
+          bank_name,
+          bank_account_number,
+          iban,
+          status,
+          created_at,
+          updated_at
       `,
       [
         employeeNumber,
@@ -152,11 +249,19 @@ export async function PUT(request: Request, { params }: RouteProps) {
         bankAccountNumber,
         iban,
         status,
+        workEmail,
+        phoneNumber,
+        presentAddress,
+        permanentAddress,
+        departmentId,
+        context.tenantId,
         id,
       ],
     );
 
-    if (result.rows.length === 0) {
+    const employee = result.rows[0];
+
+    if (!employee) {
       return NextResponse.json(
         {
           success: false,
@@ -168,22 +273,33 @@ export async function PUT(request: Request, { params }: RouteProps) {
 
     return NextResponse.json({
       success: true,
-      employee: result.rows[0],
+      employee,
     });
   } catch (error: unknown) {
+    if (error instanceof TenantAccessError) {
+      return accessErrorResponse(error);
+    }
+
     console.error("Unable to update employee:", error);
 
-    const pgError = error as {
-      code?: string;
-    };
+    const pgError = error as { code?: string };
 
     if (pgError.code === "23505") {
       return NextResponse.json(
         {
           success: false,
-          message: "Employee number already exists.",
+          message:
+            "Employee number, passport number, or civil ID already exists.",
         },
         { status: 409 },
+      );
+    }
+
+
+    if (pgError.code === "23503") {
+      return NextResponse.json(
+        { success: false, message: "The selected department is unavailable for this tenant." },
+        { status: 400 },
       );
     }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 
 import en from "@/messages/en.json";
@@ -60,7 +60,10 @@ export default function SalaryPage() {
 
   const [success, setSuccess] = useState("");
 
-  async function loadPayroll(selectedMonth = month, selectedYear = year) {
+  const loadPayroll = useCallback(async (
+    selectedMonth: number,
+    selectedYear: number,
+  ) => {
     setLoading(true);
     setError("");
     setSuccess("");
@@ -104,7 +107,15 @@ export default function SalaryPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadPayroll(month, year);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loadPayroll, month, year]);
 
   function updateEmployee(
     id: number,
@@ -188,7 +199,7 @@ export default function SalaryPage() {
 
       setSuccess(t.payrollSaved);
 
-      await loadPayroll();
+      await loadPayroll(month, year);
     } catch {
       setError("Unable to save payroll.");
     } finally {
@@ -238,9 +249,7 @@ export default function SalaryPage() {
               <select
                 value={month}
                 onChange={(event) => {
-                  const selectedMonth = Number(event.target.value);
-                  setMonth(selectedMonth);
-                  void loadPayroll(selectedMonth, year);
+                  setMonth(Number(event.target.value));
                 }}
               >
                 {Array.from({ length: 12 }, (_, index) => (
@@ -265,9 +274,7 @@ export default function SalaryPage() {
                 max="2100"
                 value={year}
                 onChange={(event) => {
-                  const selectedYear = Number(event.target.value);
-                  setYear(selectedYear);
-                  void loadPayroll(month, selectedYear);
+                  setYear(Number(event.target.value));
                 }}
               />
             </label>

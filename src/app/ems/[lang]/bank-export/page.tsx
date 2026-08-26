@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useParams } from "next/navigation";
 
@@ -54,7 +54,10 @@ export default function BankExportPage() {
 
   const [error, setError] = useState("");
 
-  async function loadRecords(selectedMonth = month, selectedYear = year) {
+  const loadRecords = useCallback(async (
+    selectedMonth: number,
+    selectedYear: number,
+  ) => {
     setLoading(true);
     setError("");
 
@@ -80,7 +83,15 @@ export default function BankExportPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadRecords(month, year);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loadRecords, month, year]);
 
   const totalNetSalary = useMemo(
     () =>
@@ -144,9 +155,7 @@ export default function BankExportPage() {
               <select
                 value={month}
                 onChange={(event) => {
-                  const selectedMonth = Number(event.target.value);
-                  setMonth(selectedMonth);
-                  void loadRecords(selectedMonth, year);
+                  setMonth(Number(event.target.value));
                 }}
               >
                 {Array.from({ length: 12 }, (_, index) => (
@@ -171,9 +180,7 @@ export default function BankExportPage() {
                 max="2100"
                 value={year}
                 onChange={(event) => {
-                  const selectedYear = Number(event.target.value);
-                  setYear(selectedYear);
-                  void loadRecords(month, selectedYear);
+                  setYear(Number(event.target.value));
                 }}
               />
             </label>
