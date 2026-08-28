@@ -16,7 +16,33 @@
 
   --border: #dce4e8;
 
+  --surface-raised: #ffffff;
+  --surface-muted: #f4f7f8;
+  --field-background: #ffffff;
+  --field-border: #cad6db;
+  --shadow-color: rgba(20, 52, 64, 0.08);
+
   --max-width: 1180px;
+}
+
+:root[data-theme="dark"] {
+  --background: #0b141b;
+  --surface: #111e27;
+  --surface-soft: #172630;
+  --surface-raised: #15232d;
+  --surface-muted: #1a2b36;
+
+  --text: #edf6f7;
+  --text-secondary: #a9bbc4;
+
+  --primary: #39c4cf;
+  --primary-dark: #22aab5;
+  --primary-light: #163840;
+
+  --border: #29414e;
+  --field-background: #0f1b24;
+  --field-border: #38515e;
+  --shadow-color: rgba(0, 0, 0, 0.28);
 }
 
 * {
@@ -34,6 +60,11 @@ body {
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.6;
+}
+
+html,
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
@@ -2105,7 +2136,46 @@ footer {
 }
 
 .attendance-table {
-  min-width: 1200px;
+  min-width: 1120px;
+  table-layout: fixed;
+}
+
+.attendance-table th:nth-child(1),
+.attendance-table td:nth-child(1) {
+  width: 120px;
+}
+
+.attendance-table th:nth-child(2),
+.attendance-table td:nth-child(2),
+.attendance-table th:nth-child(3),
+.attendance-table td:nth-child(3) {
+  width: 150px;
+}
+
+.attendance-table th:nth-child(4),
+.attendance-table td:nth-child(4) {
+  width: 80px;
+}
+
+.attendance-table th:nth-child(5),
+.attendance-table td:nth-child(5) {
+  width: 140px;
+}
+
+.attendance-table th:nth-child(6),
+.attendance-table td:nth-child(6),
+.attendance-table th:nth-child(7),
+.attendance-table td:nth-child(7) {
+  width: 130px;
+}
+
+.attendance-table th:nth-child(8),
+.attendance-table td:nth-child(8) {
+  width: 220px;
+}
+
+.attendance-present-heading {
+  text-align: center !important;
 }
 
 .attendance-table select,
@@ -2548,6 +2618,235 @@ footer {
 
   .ems-user-create-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   Color theme
+   ======================================== */
+
+.theme-toggle-shell {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 200;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 13px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface-raised) 92%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  backdrop-filter: blur(12px);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.theme-toggle-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+:root[data-theme="dark"] .site-header,
+:root[data-theme="dark"] .ems-header,
+:root[data-theme="dark"] .ems-user-bar {
+  color: var(--text);
+  background: rgba(17, 30, 39, 0.96);
+  border-color: var(--border);
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+:root[data-theme="dark"] .hero {
+  background:
+    radial-gradient(circle at 85% 20%, rgba(57, 196, 207, 0.14), transparent 32%),
+    linear-gradient(180deg, #111e27 0%, #0b141b 100%);
+}
+
+:root[data-theme="dark"] .ems-page {
+  color: var(--text);
+  background: var(--background);
+}
+
+:root[data-theme="dark"] .ems-app-name,
+:root[data-theme="dark"] .ems-subtitle,
+:root[data-theme="dark"] .ems-stat-card span,
+:root[data-theme="dark"] .ems-module-card p,
+:root[data-theme="dark"] .ems-table th,
+:root[data-theme="dark"] .ems-card-heading p,
+:root[data-theme="dark"] .ems-table-subtext,
+:root[data-theme="dark"] .attendance-empty-state p,
+:root[data-theme="dark"] .ems-tenant-name,
+:root[data-theme="dark"] .ems-tenant-name small,
+:root[data-theme="dark"] .ems-global-language a,
+:root[data-theme="dark"] nav a,
+:root[data-theme="dark"] .hero-copy,
+:root[data-theme="dark"] .trust-row {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .ems-app-name,
+:root[data-theme="dark"] .ems-tenant-name {
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .ems-language-switch,
+:root[data-theme="dark"] .ems-global-language {
+  background: var(--surface-soft);
+}
+
+:root[data-theme="dark"] .ems-stat-card,
+:root[data-theme="dark"] .ems-module-card,
+:root[data-theme="dark"] .ems-table-wrapper,
+:root[data-theme="dark"] .ems-message,
+:root[data-theme="dark"] .ems-form-card,
+:root[data-theme="dark"] .attendance-toolbar,
+:root[data-theme="dark"] .salary-toolbar,
+:root[data-theme="dark"] .attendance-empty-state,
+:root[data-theme="dark"] .ems-directory-filters,
+:root[data-theme="dark"] .ems-inline-master-form,
+:root[data-theme="dark"] .secondary-action {
+  color: var(--text);
+  background: var(--surface-raised);
+  border-color: var(--border);
+  box-shadow: 0 15px 40px var(--shadow-color);
+}
+
+:root[data-theme="dark"] .ems-user-create-card {
+  color: var(--text);
+  background: linear-gradient(135deg, var(--surface-raised), var(--surface));
+  border-color: var(--border);
+  box-shadow: 0 12px 34px var(--shadow-color);
+}
+
+:root[data-theme="dark"] .ems-table th {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .ems-table td {
+  border-color: #213642;
+}
+
+:root[data-theme="dark"] .ems-form label,
+:root[data-theme="dark"] .ems-directory-filters label,
+:root[data-theme="dark"] .ems-user-create-grid label {
+  color: #c5d4da;
+}
+
+:root[data-theme="dark"] .ems-form input,
+:root[data-theme="dark"] .ems-form select,
+:root[data-theme="dark"] .ems-form textarea,
+:root[data-theme="dark"] .ems-directory-filters input,
+:root[data-theme="dark"] .ems-directory-filters select,
+:root[data-theme="dark"] .ems-user-create-grid input,
+:root[data-theme="dark"] .ems-user-create-grid select,
+:root[data-theme="dark"] .ems-table-select,
+:root[data-theme="dark"] .ems-inline-master-form input,
+:root[data-theme="dark"] .ems-inline-master-form select {
+  color: var(--text);
+  background: var(--field-background);
+  border-color: var(--field-border);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #758b96;
+}
+
+:root[data-theme="dark"] .ems-form input[type="file"] {
+  color: var(--text-secondary);
+  background: var(--surface-soft);
+}
+
+:root[data-theme="dark"] .ems-employee-photo {
+  border-color: var(--surface-raised);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+:root[data-theme="dark"] .attendance-mark-all,
+:root[data-theme="dark"] .ems-sign-out,
+:root[data-theme="dark"] .ems-row-actions button {
+  color: var(--primary);
+  background: var(--surface-raised);
+  border-color: var(--primary);
+}
+
+:root[data-theme="dark"] .attendance-mark-all:hover,
+:root[data-theme="dark"] .ems-sign-out:hover,
+:root[data-theme="dark"] .ems-row-actions button:hover {
+  color: #071316;
+  background: var(--primary);
+}
+
+:root[data-theme="dark"] .ems-error {
+  color: #ffb6b6;
+  background: #321d22;
+  border-color: #69404a;
+}
+
+:root[data-theme="dark"] .ems-success {
+  color: #9ce0b9;
+  background: #153426;
+  border-color: #2d6245;
+}
+
+:root[data-theme="dark"] .ems-status-active,
+:root[data-theme="dark"] .ems-status-paid,
+:root[data-theme="dark"] .ems-status-pill.is-active,
+:root[data-theme="dark"] .ems-user-role,
+:root[data-theme="dark"] .ems-edit-link {
+  color: #7fe0e7;
+  background: #163840;
+}
+
+:root[data-theme="dark"] .ems-status-inactive,
+:root[data-theme="dark"] .ems-status-pill.is-inactive {
+  color: #d0d9dd;
+  background: #283943;
+}
+
+:root[data-theme="dark"] .ems-status-pending {
+  color: #f2d477;
+  background: #3b3217;
+}
+
+:root[data-theme="dark"] .secondary-action:hover {
+  background: var(--surface-soft);
+}
+
+@media (max-width: 520px) {
+  .theme-toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .theme-toggle {
+    width: 42px;
+    padding: 0;
+    justify-content: center;
   }
 }
 
