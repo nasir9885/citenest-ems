@@ -43,12 +43,14 @@ export async function POST(request: Request) {
     const description = String(body.description || "").trim() || null;
     if (!code || !nameEn) {
       return NextResponse.json({ success: false, message: "Department code and English name are required." }, { status: 400 });
-    }
-    const result = await pool.query(
-      `INSERT INTO departments (tenant_id, department_code, name_en, name_ar, description)
-       VALUES ($1, $2, $3, $4, $5)
+      }
+      const result = await pool.query(
+      `INSERT INTO departments (tenant_id, department_code, name_en, name_ar, description,
+  created_by,
+  updated_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $6)
        RETURNING id, department_code, name_en, name_ar, description, status`,
-      [context.tenantId, code, nameEn, nameAr, description],
+          [context.tenantId, code, nameEn, nameAr, description, context.userEmail,],
     );
     return NextResponse.json({ success: true, department: result.rows[0] }, { status: 201 });
   } catch (error: unknown) {

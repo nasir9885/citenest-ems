@@ -65,9 +65,23 @@ export async function POST(request: Request, { params }: RouteProps) {
     await mkdir(path.dirname(target), { recursive: true });
     await writeFile(target, Buffer.from(await photo.arrayBuffer()), { flag: "wx" });
     await pool.query(
-      `UPDATE employees SET photo_storage_key = $1, photo_file_name = $2, photo_content_type = $3
-       WHERE tenant_id = $4 AND id = $5`,
-      [key, path.basename(photo.name), photo.type, context.tenantId, id],
+      `UPDATE employees
+SET
+  photo_storage_key = $1,
+  photo_file_name = $2,
+  photo_content_type = $3,
+  updated_by = $6,
+  updated_at = CURRENT_TIMESTAMP
+WHERE tenant_id = $4
+  AND id = $5`,
+      [
+  key,
+  path.basename(photo.name),
+  photo.type,
+  context.tenantId,
+  id,
+  context.userEmail,
+],
     );
     const previous = existing.rows[0].photo_storage_key;
     if (previous) await unlink(storagePath(previous)).catch(() => undefined);

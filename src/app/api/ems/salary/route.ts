@@ -215,11 +215,13 @@ export async function POST(request: Request) {
               deductions,
               payment_status,
               payment_date,
-              remarks
+              remarks,              created_by,
+              updated_by
             )
             VALUES (
               $1, $2, $3, $4, $5,
-              $6, $7, $8, $9, $10
+              $6, $7, $8, $9, $10,
+              $11, $11
             )
             ON CONFLICT (
               tenant_id,
@@ -233,7 +235,9 @@ export async function POST(request: Request) {
               deductions = EXCLUDED.deductions,
               payment_status = EXCLUDED.payment_status,
               payment_date = EXCLUDED.payment_date,
-              remarks = EXCLUDED.remarks
+              remarks = EXCLUDED.remarks,
+              updated_by = EXCLUDED.updated_by,
+              updated_at = CURRENT_TIMESTAMP
           `,
           [
             context.tenantId,
@@ -246,6 +250,7 @@ export async function POST(request: Request) {
             record.paymentStatus,
             record.paymentDate,
             record.remarks,
+            context.userEmail,
           ],
         );
       }

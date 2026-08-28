@@ -14,6 +14,7 @@ export type TenantContext = {
   tenantKey: string;
   tenantDisplayName: string;
   role: EmsRole;
+  userEmail: string;
 };
 
 export class TenantAccessError extends Error {
@@ -43,7 +44,12 @@ export async function requireTenantContext(): Promise<TenantContext> {
 
   if (!session?.user) {
     throw new TenantAccessError("Authentication required", 401);
-  }
+    }
+    const userEmail = session.user.email?.trim().toLowerCase();
+
+    if (!userEmail) {
+        throw new TenantAccessError("Authenticated user email is unavailable", 403);
+    }
 
   const groups = session.user.groups;
   const role = roleFromGroups(groups);
@@ -78,12 +84,13 @@ export async function requireTenantContext(): Promise<TenantContext> {
     throw new TenantAccessError("EMS tenant is unavailable", 403);
   }
 
-  return {
-    tenantId: tenant.id,
-    tenantKey: tenant.tenant_key,
-    tenantDisplayName: tenant.display_name,
-    role,
-  };
+return {
+  tenantId: tenant.id,
+  tenantKey: tenant.tenant_key,
+  tenantDisplayName: tenant.display_name,
+  role,
+  userEmail: session.user.email?.trim() || "unknown",
+};
 }
 
 export function requireAdmin(context: TenantContext): void {

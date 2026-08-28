@@ -14,7 +14,9 @@ CREATE TABLE employees (
     bank_account_number VARCHAR(100),
     iban VARCHAR(100),
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_employees_tenant
@@ -55,7 +57,9 @@ CREATE TABLE employee_attendance (
     check_in TIME,
     check_out TIME,
     remarks TEXT,
+    created_by VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_employee_attendance_tenant
@@ -102,7 +106,9 @@ CREATE TABLE salary_payments (
     payment_status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     payment_date DATE,
     remarks TEXT,
+    created_by VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_salary_payments_tenant
