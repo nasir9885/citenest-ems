@@ -2735,3 +2735,363 @@ footer {
     padding-inline: 6px;
   }
 }
+/* ========================================
+   EMS APPLICATION SHELL
+   ======================================== */
+
+.ems-app-shell {
+    min-height: 100vh;
+    display: flex;
+    background: #f5f7fa;
+    color: #15212b;
+}
+
+.ems-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-right: 1px solid #dfe5eb;
+}
+
+.ems-rtl .ems-sidebar {
+    left: auto;
+    right: 0;
+    border-right: none;
+    border-left: 1px solid #dfe5eb;
+}
+
+.ems-sidebar-brand {
+    padding: 24px 22px;
+    border-bottom: 1px solid #dfe5eb;
+}
+
+    .ems-sidebar-brand a {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ems-sidebar-brand strong {
+        font-size: 22px;
+        letter-spacing: -0.02em;
+    }
+
+    .ems-sidebar-brand span {
+        margin-top: 3px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+.ems-sidebar-nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+    padding: 18px 12px;
+}
+
+    .ems-sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 44px;
+        padding: 0 13px;
+        border-radius: 9px;
+        color: #475569;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+        .ems-sidebar-nav a:hover {
+            background: #f1f5f9;
+            color: #15212b;
+        }
+
+        .ems-sidebar-nav a.active {
+            background: #e8eef5;
+            color: #15212b;
+            font-weight: 650;
+        }
+
+.ems-menu-icon {
+    width: 22px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.ems-sidebar-footer {
+    padding: 14px 12px 18px;
+    border-top: 1px solid #dfe5eb;
+}
+
+.ems-theme-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: inherit;
+}
+
+    .ems-theme-toggle:hover {
+        background: #f1f5f9;
+    }
+
+.ems-app-main {
+    flex: 1;
+    min-width: 0;
+    margin-left: 250px;
+}
+
+.ems-rtl .ems-app-main {
+    margin-left: 0;
+    margin-right: 250px;
+}
+
+.ems-app-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    padding: 0 24px;
+    background: #ffffff;
+    border-bottom: 1px solid #dfe5eb;
+}
+
+.ems-toolbar-title {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.ems-menu-button,
+.ems-toolbar-theme {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.ems-shell-content {
+    min-height: calc(100vh - 64px);
+}
+
+.ems-menu-overlay {
+    display: none;
+}
+
+/* ========================================
+   EMS DARK MODE
+   ======================================== */
+
+html.ems-dark .ems-app-shell {
+    background: #0f1720;
+    color: #e5e7eb;
+}
+
+html.ems-dark .ems-sidebar {
+    background: #111923;
+    border-color: #263241;
+}
+
+html.ems-dark .ems-rtl .ems-sidebar {
+    border-color: #263241;
+}
+
+html.ems-dark .ems-sidebar-brand {
+    border-color: #263241;
+}
+
+    html.ems-dark .ems-sidebar-brand span {
+        color: #94a3b8;
+    }
+
+html.ems-dark .ems-sidebar-nav a {
+    color: #aeb9c7;
+}
+
+    html.ems-dark .ems-sidebar-nav a:hover {
+        background: #1b2633;
+        color: #ffffff;
+    }
+
+    html.ems-dark .ems-sidebar-nav a.active {
+        background: #243244;
+        color: #ffffff;
+    }
+
+html.ems-dark .ems-sidebar-footer {
+    border-color: #263241;
+}
+
+html.ems-dark .ems-theme-toggle {
+    color: #aeb9c7;
+}
+
+    html.ems-dark .ems-theme-toggle:hover {
+        background: #1b2633;
+    }
+
+html.ems-dark .ems-app-toolbar {
+    background: #111923;
+    border-color: #263241;
+}
+
+html.ems-dark .ems-menu-button,
+html.ems-dark .ems-toolbar-theme {
+    color: #e5e7eb;
+}
+
+/* ========================================
+   EMS RESPONSIVE MENU
+   ======================================== */
+
+@media (max-width: 900px) {
+    .ems-sidebar {
+        width: 250px;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+
+        .ems-sidebar.open {
+            transform: translateX(0);
+        }
+
+    .ems-rtl .ems-sidebar {
+        transform: translateX(100%);
+    }
+
+        .ems-rtl .ems-sidebar.open {
+            transform: translateX(0);
+        }
+
+    .ems-app-main,
+    .ems-rtl .ems-app-main {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .ems-app-toolbar {
+        padding: 0 16px;
+    }
+
+    .ems-menu-button,
+    .ems-toolbar-theme {
+        display: flex;
+    }
+
+    .ems-menu-button {
+        margin-right: 12px;
+    }
+
+    .ems-rtl .ems-menu-button {
+        margin-right: 0;
+        margin-left: 12px;
+    }
+
+    .ems-menu-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 950;
+        display: block;
+        padding: 0;
+        border: 0;
+        background: rgba(15, 23, 42, 0.45);
+        cursor: pointer;
+    }
+}
+
+/* ========================================
+   EMS DARK MODE - EXISTING PAGE SURFACES
+   ======================================== */
+
+html.ems-dark .ems-page {
+    background: #0f1720;
+    color: #e5e7eb;
+}
+
+html.ems-dark .ems-header,
+html.ems-dark .ems-user-bar {
+    background: #111923;
+    border-color: #263241;
+}
+
+html.ems-dark .ems-container {
+    color: #e5e7eb;
+}
+
+html.ems-dark .ems-stat-card,
+html.ems-dark .ems-module-card,
+html.ems-dark .ems-card,
+html.ems-dark .ems-panel {
+    background: #151f2b;
+    border-color: #2b3949;
+    color: #e5e7eb;
+}
+
+    html.ems-dark .ems-stat-card span,
+    html.ems-dark .ems-module-card p,
+    html.ems-dark .ems-subtitle,
+    html.ems-dark .ems-eyebrow {
+        color: #aeb9c7;
+    }
+
+html.ems-dark input,
+html.ems-dark select,
+html.ems-dark textarea {
+    background: #111923;
+    border-color: #334155;
+    color: #e5e7eb;
+}
+
+    html.ems-dark input::placeholder,
+    html.ems-dark textarea::placeholder {
+        color: #7f8b9a;
+    }
+
+html.ems-dark table {
+    color: #e5e7eb;
+}
+
+html.ems-dark th {
+    background: #1b2633;
+    color: #d7dee7;
+}
+
+html.ems-dark td {
+    border-color: #2b3949;
+}
+
+html.ems-dark tr:hover {
+    background: #192431;
+}

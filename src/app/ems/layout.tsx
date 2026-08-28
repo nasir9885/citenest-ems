@@ -1,3 +1,4 @@
+import EmsAppShell from "@/components/ems-app-shell";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
@@ -48,44 +49,46 @@ export default async function EmsLayout({
     session.user.email?.trim() ||
     "EMS user";
 
-  return (
-    <>
-      <div className="ems-user-bar">
-        <div className="ems-user-bar-content">
-          <div className="ems-tenant-brand">
-            <span className="ems-tenant-logo">CiteNest</span>
-            <span className="ems-tenant-name">
-              <small>Organization</small>
-              {tenantDisplayName}
-            </span>
-          </div>
+    return (
+        <EmsAppShell role={role}>
+            <div className="ems-user-bar">
+                <div className="ems-user-bar-content">
+                    <div className="ems-tenant-brand">
+                        <span className="ems-tenant-logo">CiteNest</span>
 
-          <div className="ems-user-actions">
-            <EmsLanguageSwitch />
+                        <span className="ems-tenant-name">
+                            <small>Organization</small>
+                            {tenantDisplayName}
+                        </span>
+                    </div>
 
-            <div className="ems-user-identity">
-              <span className="ems-user-name">{displayName}</span>
-              <span className="ems-user-role">
-                {role === "admin" ? "Administrator" : "User"}
-              </span>
+                    <div className="ems-user-actions">
+                        <EmsLanguageSwitch />
+
+                        <div className="ems-user-identity">
+                            <span className="ems-user-name">{displayName}</span>
+
+                            <span className="ems-user-role">
+                                {role === "admin" ? "Administrator" : "User"}
+                            </span>
+                        </div>
+
+                        <form
+                            action={async () => {
+                                "use server";
+                                await signOut({ redirect: false });
+                                redirect(authentikEndSessionUrl);
+                            }}
+                        >
+                            <button type="submit" className="ems-sign-out">
+                                Sign out
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirect: false });
-                redirect(authentikEndSessionUrl);
-              }}
-            >
-              <button type="submit" className="ems-sign-out">
-                Sign out
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      {children}
-    </>
-  );
+            {children}
+        </EmsAppShell>
+    );
 }
