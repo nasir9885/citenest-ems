@@ -29,13 +29,20 @@ export default async function EmsLayout({
     const context = await requireTenantContext();
     role = context.role;
     tenantDisplayName = context.tenantDisplayName;
-  } catch (error: unknown) {
-    if (error instanceof TenantAccessError) {
-      redirect("/");
-    }
+    }  catch (error: unknown) {
+        if (error instanceof TenantAccessError) {
+            console.error("EMS LAYOUT ACCESS ERROR:", {
+                message: error.message,
+                status: error.status,
+            });
 
-    throw error;
-  }
+            redirect("/");
+        }
+
+        console.error("EMS LAYOUT UNEXPECTED ERROR:", error);
+
+        throw error;
+}
 
   const session = await auth();
 

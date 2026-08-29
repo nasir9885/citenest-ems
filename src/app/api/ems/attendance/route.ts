@@ -198,9 +198,11 @@ export async function POST(request: Request) {
               status,
               check_in,
               check_out,
-              remarks
+              remarks,
+              created_by,
+              updated_by
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8))
             ON CONFLICT (
               tenant_id,
               employee_id,
@@ -210,7 +212,9 @@ export async function POST(request: Request) {
               status = EXCLUDED.status,
               check_in = EXCLUDED.check_in,
               check_out = EXCLUDED.check_out,
-              remarks = EXCLUDED.remarks
+              remarks = EXCLUDED.remarks,
+              updated_by = EXCLUDED.updated_by,
+              updated_at = CURRENT_TIMESTAMP
           `,
           [
             context.tenantId,
@@ -219,7 +223,8 @@ export async function POST(request: Request) {
             record.status,
             record.checkIn,
             record.checkOut,
-            record.remarks,
+              record.remarks,
+              context.userEmail,
           ],
         );
       }

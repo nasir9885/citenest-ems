@@ -8,7 +8,9 @@ CREATE TABLE departments (
     name_ar VARCHAR(200),
     description TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_departments_tenant
@@ -112,7 +114,9 @@ CREATE TABLE holidays (
     is_recurring BOOLEAN NOT NULL DEFAULT FALSE,
     description TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_holidays_tenant

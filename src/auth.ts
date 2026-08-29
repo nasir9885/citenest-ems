@@ -83,25 +83,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    signIn: async ({ profile }) => {
-      if (!profile) {
-        return false;
-      }
+      signIn: async ({ profile }) => {
+          console.log(
+              "AUTHENTIK PROFILE:",
+              JSON.stringify(profile, null, 2),
+          );
 
-      const groups = groupsFromProfile(profile);
-      const tenantKey = tenantKeyFromProfile(profile);
+          if (!profile) {
+              return false;
+          }
 
-      return tenantKey !== null && hasEmsAccess(groups);
-    },
+          const groups = groupsFromProfile(profile);
+          const tenantKey = tenantKeyFromProfile(profile);
+
+          return tenantKey !== null && hasEmsAccess(groups);
+      },
 
     jwt: async ({ token, profile }) => {
-      if (profile) {
-        const groups = groupsFromProfile(profile);
+if (profile) {
+  const groups = groupsFromProfile(profile);
 
-        token.groups = groups;
-        token.tenantKey = tenantKeyFromProfile(profile);
-        token.role = roleFromGroups(groups);
-      }
+  token.groups = groups;
+  token.tenantKey = tenantKeyFromProfile(profile);
+  token.role = roleFromGroups(groups);
+
+  if (typeof profile.email === "string") {
+    token.email = profile.email;
+  }
+}
 
       return token;
     },
@@ -120,7 +129,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role === "admin" || token.role === "user"
           ? token.role
           : "user";
-
+session.user.email =
+  typeof token.email === "string" ? token.email : "";
       return session;
     },
   },

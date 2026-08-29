@@ -47,12 +47,18 @@ export async function POST(request: Request) {
     if (!nameEn || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !["PUBLIC", "COMPANY"].includes(type)) {
       return NextResponse.json({ success: false, message: "Holiday name, date, or type is invalid." }, { status: 400 });
     }
-    const result = await pool.query(
+      const result = await pool.query(
       `INSERT INTO holidays
-         (tenant_id, holiday_name_en, holiday_name_ar, holiday_date, holiday_type, is_recurring, description)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, holiday_name_en, holiday_name_ar, holiday_date, holiday_type, is_recurring, description, status`,
-      [context.tenantId, nameEn, nameAr, date, type, body.isRecurring === true, description],
+         (tenant_id, holiday_name_en, holiday_name_ar, holiday_date, holiday_type, is_recurring, description,
+  created_by,
+  updated_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+       RETURNING id, holiday_name_en, holiday_name_ar, holiday_date, holiday_type, is_recurring, description, status,
+  created_by,
+  created_at,
+  updated_by,
+  updated_at`,
+          [context.tenantId, nameEn, nameAr, date, type, body.isRecurring === true, description, context.userEmail,],
     );
     return NextResponse.json({ success: true, holiday: result.rows[0] }, { status: 201 });
   } catch (error: unknown) {

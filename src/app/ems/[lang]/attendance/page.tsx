@@ -316,7 +316,10 @@ export default function AttendancePage() {
                   <tr>
                     <th>{t.employeeNumber}</th>
                     <th>{t.employeeName}</th>
-                    <th>Present</th>
+                    <th>{t.designation}</th>
+                    <th className="attendance-present-heading">
+                      {t.markPresent}
+                    </th>
                     <th>{t.attendanceStatus}</th>
                     <th>{t.checkIn}</th>
                     <th>{t.checkOut}</th>

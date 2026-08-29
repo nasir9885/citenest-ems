@@ -190,13 +190,15 @@ export async function POST(request: Request) {
           work_email,
           phone_number,
           present_address,
-          permanent_address
-          ,department_id
+          permanent_address,
+          department_id,
+          created_by,
+          updated_by
         )
         VALUES (
           $1, $2, $3, $4, $5, $6, $7,
           $8, $9, $10, $11, $12, $13, $14,
-          $15, $16, $17, $18, $19
+          $15, $16, $17, $18, $19, $20, $20
         )
         RETURNING
           id,
@@ -235,7 +237,8 @@ export async function POST(request: Request) {
         phoneNumber,
         presentAddress,
         permanentAddress,
-        departmentId,
+          departmentId,
+          context.userEmail,
       ],
     );
 

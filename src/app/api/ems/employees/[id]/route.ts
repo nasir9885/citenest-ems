@@ -232,7 +232,9 @@ export async function PUT(request: Request, { params }: RouteProps) {
           bank_account_number,
           iban,
           status,
+          created_by,
           created_at,
+          updated_by,
           updated_at
       `,
       [
@@ -253,9 +255,10 @@ export async function PUT(request: Request, { params }: RouteProps) {
         phoneNumber,
         presentAddress,
         permanentAddress,
-        departmentId,
-        context.tenantId,
-        id,
+          departmentId,
+          context.tenantId,
+          id,
+          context.userEmail,
       ],
     );
 

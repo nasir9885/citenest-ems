@@ -5,7 +5,9 @@ CREATE TABLE tenants (
     tenant_key VARCHAR(64) NOT NULL,
     display_name VARCHAR(200) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(255),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT uq_tenants_tenant_key UNIQUE (tenant_key),
