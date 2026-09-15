@@ -214,7 +214,8 @@ export async function PUT(request: Request, { params }: RouteProps) {
           phone_number = $15,
           present_address = $16,
           permanent_address = $17,
-          department_id = $18
+          department_id = $18,
+          updated_by = $21
         WHERE tenant_id = $19
           AND id = $20
         RETURNING
